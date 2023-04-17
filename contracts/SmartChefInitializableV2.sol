@@ -14,6 +14,9 @@ contract SmartChefInitializable is Ownable, ReentrancyGuard {
     // The address of the smart chef factory
     address public immutable SMART_CHEF_FACTORY;
 
+    // The duration of token lock in blocks (0 means no locking)
+    uint256 public lockDuration;
+
     // Whether a limit is set for users
     bool public userLimit;
 
@@ -58,6 +61,15 @@ contract SmartChefInitializable is Ownable, ReentrancyGuard {
         uint256 rewardDebt; // Reward debt
     }
 
+    // Info of each user's lock status
+    mapping(address => LockInfo) public userLockInfo;
+
+    struct LockInfo {
+        uint256 lockStartBlock; // Block number when user's tokens were locked
+        uint256 lockEndBlock; // Block number when user's tokens will be unlocked
+    }
+
+
     event Deposit(address indexed user, uint256 amount);
     event EmergencyWithdraw(address indexed user, uint256 amount);
     event NewStartAndEndBlocks(uint256 startBlock, uint256 endBlock);
@@ -84,6 +96,7 @@ contract SmartChefInitializable is Ownable, ReentrancyGuard {
      * @param _bonusEndBlock: end block
      * @param _poolLimitPerUser: pool limit per user in stakedToken (if any, else 0)
      * @param _numberBlocksForUserLimit: block numbers available for user limit (after start block)
+     * @param _lockDuration: block numbers necessary to unlock the staked tokens
      * @param _admin: admin address with ownership
      */
     function initialize(
@@ -94,6 +107,7 @@ contract SmartChefInitializable is Ownable, ReentrancyGuard {
         uint256 _bonusEndBlock,
         uint256 _poolLimitPerUser,
         uint256 _numberBlocksForUserLimit,
+        uint256 _lockDuration, 
         address _admin
     ) external {
         require(!isInitialized, "Already initialized");
@@ -107,6 +121,8 @@ contract SmartChefInitializable is Ownable, ReentrancyGuard {
         rewardPerBlock = _rewardPerBlock;
         startBlock = _startBlock;
         bonusEndBlock = _bonusEndBlock;
+        lockDuration = _lockDuration;
+
 
         if (_poolLimitPerUser > 0) {
             userLimit = true;
@@ -149,6 +165,10 @@ contract SmartChefInitializable is Ownable, ReentrancyGuard {
         if (_amount > 0) {
             user.amount = user.amount + _amount;
             stakedToken.safeTransferFrom(address(msg.sender), address(this), _amount);
+
+             // Update lock info
+            userLockInfo[msg.sender].lockStartBlock = block.number;
+            userLockInfo[msg.sender].lockEndBlock = block.number + lockDuration;
         }
 
         user.rewardDebt = (user.amount * accTokenPerShare) / PRECISION_FACTOR;
@@ -163,6 +183,9 @@ contract SmartChefInitializable is Ownable, ReentrancyGuard {
     function withdraw(uint256 _amount) external nonReentrant {
         UserInfo storage user = userInfo[msg.sender];
         require(user.amount >= _amount, "Amount to withdraw too high");
+
+         // Check if tokens are unlocked
+        require(lockDuration == 0 || block.number >= userLockInfo[msg.sender].lockEndBlock, "Tokens are still locked");
 
         _updatePool();
 
@@ -298,6 +321,18 @@ contract SmartChefInitializable is Ownable, ReentrancyGuard {
             return (user.amount * accTokenPerShare) / PRECISION_FACTOR - user.rewardDebt;
         }
     }
+
+     /*
+     * @notice View function to see locking info in frointend
+     * @param _user: user address
+     * @return start block and end block
+     */
+
+    function getUserLockInfo(address _user) external view returns (uint256 lockStartBlock, uint256 lockEndBlock) {
+        lockStartBlock = userLockInfo[_user].lockStartBlock;
+        lockEndBlock = userLockInfo[_user].lockEndBlock;
+    }
+
 
     /*
      * @notice Update reward variables of the given pool to be up-to-date.
