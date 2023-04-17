@@ -1,12 +1,14 @@
 {
     "devDependencies": {
-      "@nomicfoundation/hardhat-toolbox": "^1.0.2",
-      "@openzeppelin/hardhat-upgrades": "^1.22.1",
-      "hardhat": "^2.12.7"
+        "@nomicfoundation/hardhat-toolbox": "^1.0.2",
+        "@openzeppelin/hardhat-upgrades": "^1.22.1",
+        "hardhat": "^2.12.7"
     },
     "dependencies": {
-      "@openzeppelin/contracts": "^4.8.1",
-      "@openzeppelin/contracts-upgradeable": "^4.8.1"
+        "@openzeppelin/contracts": "^4.8.1",
+        "@openzeppelin/contracts-upgradeable": "^4.8.1",
+        "@pancakeswap-libs/pancake-swap-core": "^0.1.0",
+        "@pancakeswap/pancake-swap-lib": "^0.0.4",
+        "bsc-library": "^0.0.1-security.24"
     }
-  }
-  
+}
