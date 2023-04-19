@@ -1,9 +1,9 @@
 const { ethers } = require("hardhat");
 const { expect } = require("chai");
 
-describe("SmartChefInitializable", function () {
-  let RewardToken, StakedToken, SmartChefInitializable;
-  let rewardToken, stakedToken, smartChef;
+describe("COTStakingInitializable", function () {
+  let RewardToken, StakedToken, COTStakingInitializable;
+  let rewardToken, stakedToken, COTStaking;
   let owner, user;
 
   beforeEach(async () => {
@@ -21,18 +21,19 @@ describe("SmartChefInitializable", function () {
     await rewardToken.mint(user.address, ethers.utils.parseEther("1000"));
     await stakedToken.mint(user.address, ethers.utils.parseEther("1000"));
 
-    SmartChefInitializable = await ethers.getContractFactory("COTStakingInitializable");
-    smartChef = await SmartChefInitializable.deploy();
+    COTStakingInitializable = await ethers.getContractFactory("COTStakingInitializable");
+    COTStaking = await COTStakingInitializable.deploy();
+    console.log("**HH** + COT Staking deployed!");
 
     // Transfer 1000 reward tokens to the smart contract
-  await rewardToken.mint(smartChef.address, ethers.utils.parseEther("1000"));
+    await rewardToken.mint(COTStaking.address, ethers.utils.parseEther("1000"));
 
   
   });
 
   describe("Initialize", function () {
     it("should initialize the smart contract correctly with parameters", async () => {
-    //   await smartChef.initialize(
+    //   await COTStaking.initialize(
     //     stakedToken.address,
     //     rewardToken.address,
     //     100,
@@ -43,18 +44,18 @@ describe("SmartChefInitializable", function () {
     //     owner.address
     //   );
 
-    //   expect(await smartChef.stakedToken()).to.equal(stakedToken.address);
-    //   expect(await smartChef.rewardToken()).to.equal(rewardToken.address);
-    //   expect(await smartChef.rewardPerBlock()).to.equal(100);
-    //   expect(await smartChef.startBlock()).to.equal(100);
-    //   expect(await smartChef.bonusEndBlock()).to.equal(200);
-    //   expect(await smartChef.owner()).to.equal(owner.address);
+    //   expect(await COTStaking.stakedToken()).to.equal(stakedToken.address);
+    //   expect(await COTStaking.rewardToken()).to.equal(rewardToken.address);
+    //   expect(await COTStaking.rewardPerBlock()).to.equal(100);
+    //   expect(await COTStaking.startBlock()).to.equal(100);
+    //   expect(await COTStaking.bonusEndBlock()).to.equal(200);
+    //   expect(await COTStaking.owner()).to.equal(owner.address);
      });
   });
 
   describe("Deposit", function () {
     // beforeEach(async () => {
-    //   await smartChef.initialize(
+    //   await COTStaking.initialize(
     //     stakedToken.address,
     //     rewardToken.address,
     //     100,
@@ -66,20 +67,20 @@ describe("SmartChefInitializable", function () {
     //   );
   
     //   await stakedToken.transfer(user.address, 1000);
-    //   await stakedToken.connect(user).approve(smartChef.address, 1000);
+    //   await stakedToken.connect(user).approve(COTStaking.address, 1000);
     // });
   
      it("should deposit tokens successfully", async () => {
-    //   await smartChef.connect(user).deposit(500);
-    //   expect(await smartChef.userInfo(user.address)).to.deep.equal([500, 0]);
-    //   const smartChefBalance = await stakedToken.balanceOf(smartChef.address)
-    //   expect(smartChefBalance == 500);
+    //   await COTStaking.connect(user).deposit(500);
+    //   expect(await COTStaking.userInfo(user.address)).to.deep.equal([500, 0]);
+    //   const COTStakingBalance = await stakedToken.balanceOf(COTStaking.address)
+    //   expect(COTStakingBalance == 500);
      });
   });
   
   describe("Withdraw", function () {
     beforeEach(async () => {
-      // await smartChef.initialize(
+      // await COTStaking.initialize(
       //   stakedToken.address,
       //   rewardToken.address,
       //   100,
@@ -91,15 +92,15 @@ describe("SmartChefInitializable", function () {
       // );
   
       // await stakedToken.transfer(user.address, 1000);
-      // await stakedToken.connect(user).approve(smartChef.address, 1000);
-      // await smartChef.connect(user).deposit(500);
+      // await stakedToken.connect(user).approve(COTStaking.address, 1000);
+      // await COTStaking.connect(user).deposit(500);
     });
   
     it("should withdraw tokens successfully", async () => {
-      // await smartChef.connect(user).withdraw(250);
-      // expect(await smartChef.userInfo(user.address)).to.deep.equal([250, 0]);
-      // const smartChefBalance = await stakedToken.balanceOf(smartChef.address)
-      // expect(smartChefBalance == 250);
+      // await COTStaking.connect(user).withdraw(250);
+      // expect(await COTStaking.userInfo(user.address)).to.deep.equal([250, 0]);
+      // const COTStakingBalance = await stakedToken.balanceOf(COTStaking.address)
+      // expect(COTStakingBalance == 250);
 
     });
   });
@@ -110,7 +111,7 @@ describe("SmartChefInitializable", function () {
 
     });
     // beforeEach(async () => {
-    //   await smartChef.initialize(
+    //   await COTStaking.initialize(
     //     stakedToken.address,
     //     rewardToken.address,
     //     100,
@@ -122,8 +123,8 @@ describe("SmartChefInitializable", function () {
     //   );
   
     //   await stakedToken.transfer(user.address, 1000);
-    //   await stakedToken.connect(user).approve(smartChef.address, 1000);
-    //   await smartChef.connect(user).deposit(500);
+    //   await stakedToken.connect(user).approve(COTStaking.address, 1000);
+    //   await COTStaking.connect(user).deposit(500);
     // });
       
       
@@ -131,7 +132,7 @@ describe("SmartChefInitializable", function () {
   
   describe("emergencyWithdraw", function () {
     // beforeEach(async () => {
-    //   await smartChef.initialize(
+    //   await COTStaking.initialize(
     //     stakedToken.address,
     //     rewardToken.address,
     //     100,
@@ -143,14 +144,14 @@ describe("SmartChefInitializable", function () {
     //   );
   
     //   await stakedToken.transfer(user.address, 1000);
-    //   await stakedToken.connect(user).approve(smartChef.address, 1000);
-    //   await smartChef.connect(user).deposit(500);
+    //   await stakedToken.connect(user).approve(COTStaking.address, 1000);
+    //   await COTStaking.connect(user).deposit(500);
     // });
   
     it("should allow emergency withdrawal", async () => {
-      // await smartChef.connect(user).emergencyWithdraw();
-      // expect(await smartChef.userInfo(user.address)).to.deep.equal([0, 0]);
-    //   expect(await smartChef.totalStaked()).to.equal(0);
+      // await COTStaking.connect(user).emergencyWithdraw();
+      // expect(await COTStaking.userInfo(user.address)).to.deep.equal([0, 0]);
+    //   expect(await COTStaking.totalStaked()).to.equal(0);
     });
       
 
