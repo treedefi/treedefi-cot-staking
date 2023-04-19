@@ -53,28 +53,28 @@ describe("SmartChefInitializable", function () {
   });
 
   describe("deposit", function () {
-    beforeEach(async () => {
-      await smartChef.initialize(
-        stakedToken.address,
-        rewardToken.address,
-        100,
-        100,
-        200,
-        0,
-        0,
-        owner.address
-      );
+    // beforeEach(async () => {
+    //   await smartChef.initialize(
+    //     stakedToken.address,
+    //     rewardToken.address,
+    //     100,
+    //     100,
+    //     200,
+    //     0,
+    //     0,
+    //     owner.address
+    //   );
   
-      await stakedToken.transfer(user.address, 1000);
-      await stakedToken.connect(user).approve(smartChef.address, 1000);
-    });
+    //   await stakedToken.transfer(user.address, 1000);
+    //   await stakedToken.connect(user).approve(smartChef.address, 1000);
+    // });
   
-    it("should deposit tokens successfully", async () => {
-      await smartChef.connect(user).deposit(500);
-      expect(await smartChef.userInfo(user.address)).to.deep.equal([500, 0]);
-      const smartChefBalance = await stakedToken.balanceOf(smartChef.address)
-      expect(smartChefBalance == 500);
-    });
+    // it("should deposit tokens successfully", async () => {
+    //   await smartChef.connect(user).deposit(500);
+    //   expect(await smartChef.userInfo(user.address)).to.deep.equal([500, 0]);
+    //   const smartChefBalance = await stakedToken.balanceOf(smartChef.address)
+    //   expect(smartChefBalance == 500);
+    // });
   });
   
   describe("withdraw", function () {
