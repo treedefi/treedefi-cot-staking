@@ -28,4 +28,26 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         bool claimed;
     }
 
+    mapping(address => Stake) private _stakes;
+
+    event Staked(address indexed user, uint256 amount);
+    event Unstaked(address indexed user, uint256 amount);
+    event RewardClaimed(address indexed user, uint256 amount);
+
+    function initialize(
+        address cotToken_,
+        uint256 poolSize_,
+        uint256 blockRewardRate_,
+        uint256 minStackingLockTime_,
+        uint256 poolDuration_
+        
+    ) external onlyOwner {
+        cotToken = IERC20Metadata(cotToken_);
+        poolSize = poolSize_;
+        blockRewardRate = blockRewardRate_;
+        minStackingLockTime = minStackingLockTime_;
+        poolDuration = poolDuration_;
+        rewardTokensValue = poolSize * blockRewardRate;
+    }
+
 }
