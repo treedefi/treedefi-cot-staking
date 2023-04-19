@@ -23,7 +23,7 @@ describe("COTStakingInitializable", function () {
 
     COTStakingInitializable = await ethers.getContractFactory("COTStakingInitializable");
     COTStaking = await COTStakingInitializable.deploy();
-    console.log("**HH** + COT Staking deployed!");
+    // console.log("**HH** + COT Staking deployed!");
 
     // Transfer 1000 reward tokens to the smart contract
     await rewardToken.mint(COTStaking.address, ethers.utils.parseEther("1000"));
@@ -33,23 +33,27 @@ describe("COTStakingInitializable", function () {
 
   describe("Initialize", function () {
     it("should initialize the smart contract correctly with parameters", async () => {
-    //   await COTStaking.initialize(
-    //     stakedToken.address,
-    //     rewardToken.address,
-    //     100,
-    //     100,
-    //     200,
-    //     0,
-    //     0,
-    //     owner.address
-    //   );
+       // Parameters for initialization
+       const poolSize = ethers.utils.parseEther("500");
+       const blockRewardRate = 10;
+       const minStackingLockTime = 100;
+       const poolDuration = 200;
+     
+       await COTStaking.initialize(
+           stakedToken.address,
+           poolSize,
+           blockRewardRate,
+           minStackingLockTime,
+           poolDuration
+       );
 
-    //   expect(await COTStaking.stakedToken()).to.equal(stakedToken.address);
-    //   expect(await COTStaking.rewardToken()).to.equal(rewardToken.address);
-    //   expect(await COTStaking.rewardPerBlock()).to.equal(100);
-    //   expect(await COTStaking.startBlock()).to.equal(100);
-    //   expect(await COTStaking.bonusEndBlock()).to.equal(200);
-    //   expect(await COTStaking.owner()).to.equal(owner.address);
+       expect(await COTStaking.cotToken()).to.equal(stakedToken.address);
+       expect(await COTStaking.poolSize()).to.equal(poolSize);
+       expect(await COTStaking.blockRewardRate()).to.equal(blockRewardRate);
+       expect(await COTStaking.minStackingLockTime()).to.equal(minStackingLockTime);
+       expect(await COTStaking.poolDuration()).to.equal(poolDuration);
+       expect(await COTStaking.owner()).to.equal(owner.address);
+
      });
   });
 

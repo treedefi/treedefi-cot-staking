@@ -40,7 +40,7 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         uint256 blockRewardRate_,
         uint256 minStackingLockTime_,
         uint256 poolDuration_
-        
+
     ) external onlyOwner {
         cotToken = IERC20Metadata(cotToken_);
         poolSize = poolSize_;
@@ -48,6 +48,59 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         minStackingLockTime = minStackingLockTime_;
         poolDuration = poolDuration_;
         rewardTokensValue = poolSize * blockRewardRate;
+    }
+
+    function stake(uint256 amount) external nonReentrant {
+        require(amount > 0, "COTStaking: Amount must be greater than zero");
+        require(_totalStaked + amount <= poolSize, "COTStaking: Pool size limit reached");
+
+        Stake storage stake_ = _stakes[msg.sender];
+
+        require(stake_.amount == 0, "COTStaking: User already staked");
+
+        stake_.amount = amount;
+        stake_.startBlock = block.number;
+        stake_.endBlock = block.number + poolDuration;
+        stake_.claimed = false;
+
+        _totalStaked += amount;
+
+        cotToken.safeTransferFrom(msg.sender, address(this), amount);
+
+        emit Staked(msg.sender, amount);
+    }
+
+    function unstake() external nonReentrant {
+        Stake storage stake_ = _stakes[msg.sender];
+
+        require(stake_.amount > 0, "COTStaking: No active stake");
+        require(block.number >= stake_.endBlock, "COTStaking: Pool duration not reached");
+        require(!stake_.claimed, "COTStaking: Rewards already claimed");
+
+        uint256 reward = _calculateReward(stake_.amount, stake_.startBlock, stake_.endBlock);
+        _lastBlockReward = stake_.endBlock;
+
+        cotToken.safeTransfer(msg.sender, stake_.amount + reward);
+
+        stake_.amount = 0;
+        stake_.claimed = true;
+
+        emit Unstaked(msg.sender, stake_.amount);
+        emit RewardClaimed(msg.sender, reward);
+    }
+
+    /* internal functions */
+
+    function _calculateReward(uint256 amount, uint256 startBlock, uint256 endBlock) private view returns (uint256) {
+        uint256 blocksStaked = endBlock - startBlock;
+        uint256 reward = (amount * blockRewardRate * blocksStaked) / poolDuration;
+        return reward;
+    }
+    
+    /* external functions */
+
+    function getRemainingStakeCapacity() public view returns (uint256) {
+        return poolSize - _totalStaked;
     }
 
 }
