@@ -30,8 +30,8 @@ describe("SmartChefInitializable", function () {
   
   });
 
-  describe("initialize", function () {
-    // it("should initialize the smart contract correctly", async () => {
+  describe("Initialize", function () {
+    it("should initialize the smart contract correctly with parameters", async () => {
     //   await smartChef.initialize(
     //     stakedToken.address,
     //     rewardToken.address,
@@ -49,10 +49,10 @@ describe("SmartChefInitializable", function () {
     //   expect(await smartChef.startBlock()).to.equal(100);
     //   expect(await smartChef.bonusEndBlock()).to.equal(200);
     //   expect(await smartChef.owner()).to.equal(owner.address);
-    // });
+     });
   });
 
-  describe("deposit", function () {
+  describe("Deposit", function () {
     // beforeEach(async () => {
     //   await smartChef.initialize(
     //     stakedToken.address,
@@ -69,15 +69,15 @@ describe("SmartChefInitializable", function () {
     //   await stakedToken.connect(user).approve(smartChef.address, 1000);
     // });
   
-    // it("should deposit tokens successfully", async () => {
+     it("should deposit tokens successfully", async () => {
     //   await smartChef.connect(user).deposit(500);
     //   expect(await smartChef.userInfo(user.address)).to.deep.equal([500, 0]);
     //   const smartChefBalance = await stakedToken.balanceOf(smartChef.address)
     //   expect(smartChefBalance == 500);
-    // });
+     });
   });
   
-  describe("withdraw", function () {
+  describe("Withdraw", function () {
     beforeEach(async () => {
       // await smartChef.initialize(
       //   stakedToken.address,
@@ -104,7 +104,11 @@ describe("SmartChefInitializable", function () {
     });
   });
   
-  describe("pendingReward", function () {
+  describe("PendingReward", function () {
+
+    it("should correctly calculate the pending reward", async () => {
+
+    });
     // beforeEach(async () => {
     //   await smartChef.initialize(
     //     stakedToken.address,
@@ -148,10 +152,6 @@ describe("SmartChefInitializable", function () {
       // expect(await smartChef.userInfo(user.address)).to.deep.equal([0, 0]);
     //   expect(await smartChef.totalStaked()).to.equal(0);
     });
-
-    it("should correctly calculate the pending reward", async () => {
-
-      });
       
 
     
