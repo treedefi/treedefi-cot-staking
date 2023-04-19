@@ -97,10 +97,15 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         return reward;
     }
     
-    /* external functions */
+    /* view functions */
 
     function getRemainingStakeCapacity() public view returns (uint256) {
         return poolSize - _totalStaked;
     }
+
+    function getUserStake(address user) external view returns (Stake memory) {
+        return _stakes[user];
+    }
+
 
 }

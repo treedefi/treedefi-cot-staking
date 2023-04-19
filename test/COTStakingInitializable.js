@@ -57,31 +57,51 @@ describe("COTStakingInitializable", function () {
      });
   });
 
-  describe("Deposit", function () {
-    // beforeEach(async () => {
-    //   await COTStaking.initialize(
-    //     stakedToken.address,
-    //     rewardToken.address,
-    //     100,
-    //     100,
-    //     200,
-    //     0,
-    //     0,
-    //     owner.address
-    //   );
+  describe("Stake", function () {
+    beforeEach(async () => {
+        const poolSize = ethers.utils.parseEther("500");
+        const blockRewardRate = 10;
+        const minStackingLockTime = 100;
+        const poolDuration = 200;
+      
+        await COTStaking.initialize(
+            stakedToken.address,
+            poolSize,
+            blockRewardRate,
+            minStackingLockTime,
+            poolDuration
+        );
+
+        await stakedToken.transfer(user.address, ethers.utils.parseEther("1000"));
+        await stakedToken.connect(user).approve(COTStaking.address, ethers.utils.parseEther("1000"));
+    });
   
-    //   await stakedToken.transfer(user.address, 1000);
-    //   await stakedToken.connect(user).approve(COTStaking.address, 1000);
-    // });
-  
-     it("should deposit tokens successfully", async () => {
-    //   await COTStaking.connect(user).deposit(500);
-    //   expect(await COTStaking.userInfo(user.address)).to.deep.equal([500, 0]);
-    //   const COTStakingBalance = await stakedToken.balanceOf(COTStaking.address)
-    //   expect(COTStakingBalance == 500);
-     });
+    it("should stake tokens successfully", async () => {
+      const poolDuration = 200; // Define poolDuration as needed
+
+      const stakeAmount = ethers.utils.parseEther("500");
+      const blockNumberBeforeStake = await ethers.provider.getBlockNumber();
+      await COTStaking.connect(user).stake(stakeAmount);
+
+      const stakeInfo = await COTStaking.getUserStake(user.address);
+
+      console.log("Stake Amount:", stakeInfo.amount.toString());
+      console.log("Start Block:", stakeInfo.startBlock.toString());
+      console.log("End Block:", stakeInfo.endBlock.toString());
+      console.log("Claimed:", stakeInfo.claimed);
+
+      expect(stakeInfo.amount).to.equal(stakeAmount);
+      expect(stakeInfo.startBlock).to.be.closeTo(blockNumberBeforeStake, 1); // Allow a difference of 1
+      expect(stakeInfo.endBlock).to.be.closeTo(blockNumberBeforeStake + poolDuration, 1); // Allow a difference of 1
+      expect(stakeInfo.claimed).to.equal(false);
+
+      const COTStakingBalance = await stakedToken.balanceOf(COTStaking.address);
+      expect(COTStakingBalance).to.equal(stakeAmount);
   });
   
+});
+
+
   describe("Withdraw", function () {
     beforeEach(async () => {
       // await COTStaking.initialize(
