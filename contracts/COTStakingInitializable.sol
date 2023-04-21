@@ -60,7 +60,7 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
 
         stake_.amount = amount;
         stake_.startBlock = block.number;
-        stake_.endBlock = block.number + poolDuration;
+        stake_.endBlock = block.number + minStackingLockTime;
         stake_.claimed = false;
 
         _totalStaked += amount;
@@ -108,6 +108,5 @@ function unstake() external nonReentrant {
     function getUserStake(address user) external view returns (Stake memory) {
         return _stakes[user];
     }
-
 
 }
