@@ -101,34 +101,76 @@ describe("COTStakingInitializable", function () {
   
 });
 
-
-  describe("Withdraw", function () {
-    beforeEach(async () => {
-      // await COTStaking.initialize(
-      //   stakedToken.address,
-      //   rewardToken.address,
-      //   100,
-      //   100,
-      //   200,
-      //   0,
-      //   0,
-      //   owner.address
-      // );
+describe("Unstake", function () {
+  beforeEach(async () => {
+    const poolSize = ethers.utils.parseEther("500");
+    const blockRewardRate = 10;
+    const minStackingLockTime = 100;
+    const poolDuration = 200;
   
-      // await stakedToken.transfer(user.address, 1000);
-      // await stakedToken.connect(user).approve(COTStaking.address, 1000);
-      // await COTStaking.connect(user).deposit(500);
-    });
-  
-    it("should withdraw tokens successfully", async () => {
-      // await COTStaking.connect(user).withdraw(250);
-      // expect(await COTStaking.userInfo(user.address)).to.deep.equal([250, 0]);
-      // const COTStakingBalance = await stakedToken.balanceOf(COTStaking.address)
-      // expect(COTStakingBalance == 250);
+    await COTStaking.initialize(
+        stakedToken.address,
+        poolSize,
+        blockRewardRate,
+        minStackingLockTime,
+        poolDuration
+    );
 
-    });
+    console.log("COTStaking initialized");
+
+    const initialStakedTokenBalance = await stakedToken.balanceOf(stakedToken.address);
+    console.log("Initial stakedToken balance:", ethers.utils.formatEther(initialStakedTokenBalance));
+
+    await stakedToken.transfer(user.address, ethers.utils.parseEther("5000"));
+    await stakedToken.connect(user).approve(COTStaking.address, ethers.utils.parseEther("5000"));
+
+    const userBalance = await stakedToken.balanceOf(user.address);
+    console.log("User balance after transfer:", ethers.utils.formatEther(userBalance));
+
+    const allowance = await stakedToken.allowance(user.address, COTStaking.address);
+    console.log("User allowance for COTStaking:", ethers.utils.formatEther(allowance));
+
+    const stakeAmount = ethers.utils.parseEther("100");
+    await COTStaking.connect(user).stake(stakeAmount);
+
+    const userStake = await COTStaking.getUserStake(user.address);
+    console.log("User stake amount:", ethers.utils.formatEther(userStake.amount));
   });
-  
+
+  it("should unstake tokens successfully", async () => {
+    // Add some blocks before unstaking
+    for (let i = 0; i < 205; i++) {
+      await ethers.provider.send("evm_mine");
+    }
+
+    const initialUserBalance = await stakedToken.balanceOf(user.address);
+    const initialCOTStakingBalance = await stakedToken.balanceOf(COTStaking.address);
+    
+    console.log("Contract balance before unstaking:", ethers.utils.formatEther(initialCOTStakingBalance));
+
+    // Unstake the tokens
+    await COTStaking.connect(user).unstake();
+
+    // Check the user's staked tokens
+    const stakeInfo = await COTStaking.getUserStake(user.address);
+    expect(stakeInfo.amount).to.equal(0);
+
+    // Check if the tokens were transferred back to the user
+    const finalUserBalance = await stakedToken.balanceOf(user.address);
+    const expectedUserBalance = initialUserBalance.add(initialCOTStakingBalance);
+    expect(finalUserBalance).to.equal(expectedUserBalance);
+
+    // Check if the tokens were removed from the COTStaking contract
+    const finalCOTStakingBalance = await stakedToken.balanceOf(COTStaking.address);
+    expect(finalCOTStakingBalance).to.equal(0);
+  });
+});
+
+
+
+
+
+
   describe("PendingReward", function () {
 
     it("should correctly calculate the pending reward", async () => {

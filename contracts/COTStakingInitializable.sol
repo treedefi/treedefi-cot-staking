@@ -70,24 +70,26 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         emit Staked(msg.sender, amount);
     }
 
-    function unstake() external nonReentrant {
+function unstake() external nonReentrant {
         Stake storage stake_ = _stakes[msg.sender];
 
         require(stake_.amount > 0, "COTStaking: No active stake");
-        require(block.number >= stake_.endBlock, "COTStaking: Pool duration not reached");
+        require(block.number >= stake_.startBlock + minStackingLockTime, "COTStaking: Minimum staking lock time not reached");
         require(!stake_.claimed, "COTStaking: Rewards already claimed");
 
-        uint256 reward = _calculateReward(stake_.amount, stake_.startBlock, stake_.endBlock);
-        _lastBlockReward = stake_.endBlock;
+        uint256 reward = _calculateReward(stake_.amount, stake_.startBlock, block.number);
+        _lastBlockReward = block.number;
 
-        cotToken.safeTransfer(msg.sender, stake_.amount + reward);
+        cotToken.safeTransfer(msg.sender, stake_.amount);
+        cotToken.safeTransfer(msg.sender, reward);
 
+        emit Unstaked(msg.sender, stake_.amount);
         stake_.amount = 0;
         stake_.claimed = true;
 
-        emit Unstaked(msg.sender, stake_.amount);
         emit RewardClaimed(msg.sender, reward);
     }
+
 
     /* internal functions */
 
