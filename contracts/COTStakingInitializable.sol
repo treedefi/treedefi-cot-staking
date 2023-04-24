@@ -46,7 +46,7 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
     /// @param blockRewardRate_ The rate at which rewards are earned per block.
     /// @param minStackingLockTime_ The minimum lock time for staking.
     /// @param poolDuration_ The duration of the staking pool.
-    
+
     function initialize(
         address cotToken_,
         uint256 poolSize_,
@@ -63,6 +63,8 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         rewardTokensValue = poolSize * blockRewardRate;
     }
 
+    // @notice Stakes a specified amount of COT tokens.
+    // @param amount The amount of COT tokens to stake.
     function stake(uint256 amount) external nonReentrant {
         require(amount > 0, "COTStaking: Amount must be greater than zero");
         require(_totalStaked + amount <= poolSize, "COTStaking: Pool size limit reached");
@@ -83,7 +85,8 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         emit Staked(msg.sender, amount);
     }
 
-function unstake() external nonReentrant {
+     /// @notice Unstakes tokens and claims rewards.
+    function unstake() external nonReentrant {
         Stake storage stake_ = _stakes[msg.sender];
 
         require(stake_.amount > 0, "COTStaking: No active stake");
@@ -105,6 +108,12 @@ function unstake() external nonReentrant {
 
 
     /* internal functions */
+    
+    /// @notice Calculates the reward for a given stake.
+    /// @param amount The amount of COT tokens staked.
+    /// @param startBlock The starting block of the stake.
+    /// @param endBlock The ending block of the stake.
+    /// @return reward The calculated reward amount.
 
     function _calculateReward(uint256 amount, uint256 startBlock, uint256 endBlock) private view returns (uint256) {
         uint256 blocksStaked = endBlock.sub(startBlock);
@@ -113,14 +122,17 @@ function unstake() external nonReentrant {
     }
     
     /* view functions */
-
+    /// @notice Returns the remaining stake capacity in the pool.
+    /// @return The remaining stake capacity.
     function getRemainingStakeCapacity() public view returns (uint256) {
         return poolSize - _totalStaked;
     }
 
+    /// @notice Returns the stake details for a specific user.
+    /// @param user The address of the user.
+    /// @return stake The user's stake details.
     function getUserStake(address user) external view returns (Stake memory) {
         return _stakes[user];
     }
-
 
 }
