@@ -81,25 +81,26 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         emit Staked(msg.sender, amount);
     }
 
-     /// @notice Unstakes tokens and claims rewards. TBD
+     /// @notice Unstakes tokens and claims rewards
 
     function unstake() external nonReentrant {
-       
+        Stake storage stake_ = _stakes[msg.sender];
+
+        require(stake_.amount > 0, "COTStaking: No active stake");
+        require(block.number >= stake_.startBlock.add(minStackingLockTime), "COTStaking: Minimum staking lock time not reached");
+        require(!stake_.claimed, "COTStaking: Rewards already claimed");
+
+        uint256 userRewards = userPendingRewards(msg.sender);
+
+        cotToken.safeTransfer(msg.sender, stake_.amount.add(userRewards));
+        _totalStaked = _totalStaked.sub(stake_.amount);
+        stake_.amount = 0;
+        stake_.claimed = true;
+
+        emit Unstaked(msg.sender, stake_.amount);
+        emit RewardClaimed(msg.sender, userRewards);
     }
 
-    /**
-     * @notice Calculate the pending rewards for a given stake.
-     * @param amount The amount of COT tokens staked.
-     * @param startBlock The starting block of the stake.
-     * @param blockRewardRate The computed block reward rate based on user stake and reward rate.
-     * @return pending_reward The calculated pending reward amount.
-     */
-
-    function _calculateReward(uint256 amount, uint256 startBlock, uint256 blockRewardRate) private view returns (uint256) {
-        uint256 blockPassed = block.number.sub(startBlock);
-        uint256 pending_reward = amount.mul(blockRewardRate).mul(blockPassed).div(poolDuration);
-        return pending_reward;
-    }
 
     /**
      * @notice Returns the remaining stake capacity in the pool.

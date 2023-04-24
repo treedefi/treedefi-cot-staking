@@ -116,6 +116,69 @@ describe("COTStakingInitializable", function () {
     });
   });
 
+  describe("Unstake", function () {
+    it("should unstake tokens and claim rewards successfully", async () => {
+      const stakeAmount = ethers.utils.parseEther("500");
+      await fixtures.stakedToken.approve(fixtures.COTStaking.address, stakeAmount);
+      await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount);
+      const stakeInfo = await fixtures.COTStaking.getUserStake(fixtures.user.address);
+
+      const blockToAdvance = 5;
+      for (let i = 0; i < blockToAdvance; i++) {
+        await network.provider.send("evm_mine");
+      }
+  
+      const blockNumberBeforeUnstake = await ethers.provider.getBlockNumber();
+      const userPendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
+      await fixtures.COTStaking.connect(fixtures.user).unstake();
+      const blockNumberAfterUnstake = await ethers.provider.getBlockNumber();
+      const elapsedBlocks = blockNumberAfterUnstake - stakeInfo.startBlock;
+  
+      expect(await fixtures.stakedToken.balanceOf(fixtures.user.address)).to.equal(stakeAmount.add(userPendingRewards));
+      expect(await fixtures.stakedToken.balanceOf(fixtures.COTStaking.address)).to.equal(0);
+      expect(await fixtures.COTStaking.getRemainingStakeCapacity()).to.equal(fixtures.poolSize);
+      expect(await fixtures.COTStaking.userPendingRewards(fixtures.user.address)).to.equal(0);
+      expect(await fixtures.COTStaking.getUserStake(fixtures.user.address)).to.eql({
+        amount: 0,
+        startBlock: stakeInfo.startBlock,
+        endBlock: stakeInfo.endBlock,
+        claimed: true,
+      });
+      expect(await fixtures.rewardToken.balanceOf(fixtures.user.address)).to.equal(userPendingRewards);
+      expect(await fixtures.rewardToken.balanceOf(fixtures.COTStaking.address)).to.equal(ethers.utils.parseEther("1000").sub(userPendingRewards));
+      expect(elapsedBlocks).to.be.closeTo(fixtures.minStackingLockTime, 1); // Allow a difference of 1
+    });
+  
+    it("should revert if the user has not staked yet", async () => {
+      await expect(fixtures.COTStaking.connect(fixtures.user).unstake()).to.be.revertedWith("COTStaking: No active stake");
+    });
+  
+    it("should revert if the minimum staking lock time is not reached", async () => {
+      const stakeAmount = ethers.utils.parseEther("500");
+      await fixtures.stakedToken.approve(fixtures.COTStaking.address, stakeAmount);
+      await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount);
+  
+      await expect(fixtures.COTStaking.connect(fixtures.user).unstake()).to.be.revertedWith(
+        "COTStaking: Minimum staking lock time not reached"
+      );
+    });
+  
+    it("should revert if rewards have already been claimed", async () => {
+      const stakeAmount = ethers.utils.parseEther("500");
+      await fixtures.stakedToken.approve(fixtures.COTStaking.address, stakeAmount);
+      await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount);
+  
+      await network.provider.send("evm_increaseTime", [fixtures.minStackingLockTime]);
+      await network.provider.send("evm_mine");
+  
+      await fixtures.COTStaking.connect(fixtures.user).unstake();
+      await expect(fixtures.COTStaking.connect(fixtures.user).unstake()).to.be.revertedWith(
+        "COTStaking: Rewards already claimed"
+      );
+    });
+  });
+  
+
   
   
     
