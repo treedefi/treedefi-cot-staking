@@ -24,14 +24,14 @@ async function setup() {
 
   // Initialize the staking contract
   const poolSize = ethers.utils.parseEther("500");
-  const blockRewardRate = 10;
+  const rewardRate = 10;
   const minStackingLockTime = 100;
   const poolDuration = 200;
 
   await COTStaking.initialize(
     stakedToken.address,
     poolSize,
-    blockRewardRate,
+    rewardRate,
     minStackingLockTime,
     poolDuration
   );
@@ -46,7 +46,7 @@ async function setup() {
     stakedToken,
     COTStaking,
     poolSize,
-    blockRewardRate,
+    rewardRate,
     minStackingLockTime,
     poolDuration,
   };
@@ -63,7 +63,7 @@ describe("COTStakingInitializable", function () {
     it("should initialize the smart contract correctly with parameters", async () => {
       expect(await fixtures.COTStaking.cotToken()).to.equal(fixtures.stakedToken.address);
       expect(await fixtures.COTStaking.poolSize()).to.equal(fixtures.poolSize);
-      expect(await fixtures.COTStaking.blockRewardRate()).to.equal(fixtures.blockRewardRate);
+      expect(await fixtures.COTStaking.rewardRate()).to.equal(fixtures.rewardRate);
       expect(await fixtures.COTStaking.minStackingLockTime()).to.equal(fixtures.minStackingLockTime);
       expect(await fixtures.COTStaking.poolDuration()).to.equal(fixtures.poolDuration);
       expect(await fixtures.COTStaking.owner()).to.equal(fixtures.owner.address);
@@ -97,10 +97,10 @@ describe("COTStakingInitializable", function () {
   
       const blockNumberBeforeAdvance = await ethers.provider.getBlockNumber();
       const blockToAdvance = 5;
-      const expectedReward = amountToStake.mul(fixtures.blockRewardRate).mul(blockToAdvance).div(fixtures.poolDuration);
+      const expectedReward = amountToStake.mul(fixtures.rewardRate).mul(blockToAdvance).div(fixtures.poolDuration);
   
       console.log(`Amount to stake: ${amountToStake}`);
-      console.log(`Block reward rate: ${fixtures.blockRewardRate}`);
+      console.log(`Reward rate: ${fixtures.rewardRate}`);
       console.log(`Blocks to advance: ${blockToAdvance}`);
       console.log(`Pool duration: ${fixtures.poolDuration}`);
       console.log(`Expected reward: ${expectedReward}`);
@@ -116,8 +116,7 @@ describe("COTStakingInitializable", function () {
       expect(pendingRewards).to.be.equal(expectedReward);
     });
   });
-  
-  
+
   
   
     
