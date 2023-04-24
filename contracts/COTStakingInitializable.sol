@@ -34,6 +34,12 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         bool claimed;
     }
 
+    struct UserInfo {
+        uint256 amount;     // How many tokens the user has provided.
+        uint256 rewardDebt; // Reward debt.
+    }
+
+    mapping (address => UserInfo) public users;
     mapping(address => Stake) private _stakes;
 
     event Staked(address indexed user, uint256 amount);
@@ -134,5 +140,20 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
     function getUserStake(address user) external view returns (Stake memory) {
         return _stakes[user];
     }
+
+  /**
+ * @notice Calculate the pending rewards for a user
+ * @param user The address of the user to query the rewards for
+ * @return pendingRewards The pending rewards for the specified user
+ */
+function userPendingRewards(address user) public view returns (uint256 pendingRewards) {
+    Stake storage stake_ = _stakes[user];
+
+    if (stake_.amount > 0 && !stake_.claimed) {
+        uint256 endBlock = block.number < stake_.endBlock ? block.number : stake_.endBlock;
+        pendingRewards = _calculateReward(stake_.amount, stake_.startBlock, endBlock);
+    }
+}
+
 
 }

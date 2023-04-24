@@ -96,38 +96,9 @@ describe("COTStakingInitializable", function () {
 
 describe("Unstake", function () {
   beforeEach(async () => {
-    const poolSize = ethers.utils.parseEther("500");
-    const blockRewardRate = 10;
-    const minStackingLockTime = 100;
-    const poolDuration = 200;
-  
-    await COTStaking.initialize(
-        stakedToken.address,
-        poolSize,
-        blockRewardRate,
-        minStackingLockTime,
-        poolDuration
-    );
+    
 
-    console.log("COTStaking initialized");
-
-    // const initialStakedTokenBalance = await stakedToken.balanceOf(stakedToken.address);
-    // console.log("Initial stakedToken balance:", ethers.utils.formatEther(initialStakedTokenBalance));
-
-    // await stakedToken.transfer(user.address, ethers.utils.parseEther("5000"));
-    // await stakedToken.connect(user).approve(COTStaking.address, ethers.utils.parseEther("5000"));
-
-    // const userBalance = await stakedToken.balanceOf(user.address);
-    // console.log("User balance after transfer:", ethers.utils.formatEther(userBalance));
-
-    // const allowance = await stakedToken.allowance(user.address, COTStaking.address);
-    // console.log("User allowance for COTStaking:", ethers.utils.formatEther(allowance));
-
-    // const stakeAmount = ethers.utils.parseEther("100");
-    // await COTStaking.connect(user).stake(stakeAmount);
-
-    // const userStake = await COTStaking.getUserStake(user.address);
-    // console.log("User stake amount:", ethers.utils.formatEther(userStake.amount));
+ 
   });
 
   it("should unstake tokens successfully", async () => {
@@ -136,53 +107,38 @@ describe("Unstake", function () {
 });
 
 
-  describe("PendingReward", function () {
+describe("PendingReward", function () {
+  it("should correctly calculate the pending reward after advancing some blocks", async function () {
+    const amountToStake = ethers.utils.parseEther("10");
 
-    it("should correctly calculate the pending reward", async () => {
+    await cotToken.approve(cotStaking.address, amountToStake);
+    await cotStaking.stake(amountToStake);
 
-    });
-    // beforeEach(async () => {
-    //   await COTStaking.initialize(
-    //     stakedToken.address,
-    //     rewardToken.address,
-    //     100,
-    //     100,
-    //     200,
-    //     0,
-    //     0,
-    //     owner.address
-    //   );
-  
-    //   await stakedToken.transfer(user.address, 1000);
-    //   await stakedToken.connect(user).approve(COTStaking.address, 1000);
-    //   await COTStaking.connect(user).deposit(500);
-    // });
-      
-      
+    const blockNumberBeforeAdvance = await ethers.provider.getBlockNumber();
+    const blockToAdvance = 5;
+
+    // Increase the time
+    const secondsToAdvance = blockToAdvance * 15; // Assuming 15 seconds per block
+    await network.provider.send("evm_increaseTime", [secondsToAdvance]);
+    await network.provider.send("evm_mine");
+
+    const pendingRewards = await cotStaking.userPendingRewards(user1.address);
+    const expectedReward = amountToStake
+      .mul(blockRewardRate)
+      .mul(blockToAdvance)
+      .div(poolDuration);
+
+    expect(pendingRewards).to.be.equal(expectedReward);
   });
+});
+
+
   
   describe("emergencyWithdraw", function () {
-    // beforeEach(async () => {
-    //   await COTStaking.initialize(
-    //     stakedToken.address,
-    //     rewardToken.address,
-    //     100,
-    //     100,
-    //     200,
-    //     0,
-    //     0,
-    //     owner.address
-    //   );
-  
-    //   await stakedToken.transfer(user.address, 1000);
-    //   await stakedToken.connect(user).approve(COTStaking.address, 1000);
-    //   await COTStaking.connect(user).deposit(500);
-    // });
+
   
     it("should allow emergency withdrawal", async () => {
-      // await COTStaking.connect(user).emergencyWithdraw();
-      // expect(await COTStaking.userInfo(user.address)).to.deep.equal([0, 0]);
-    //   expect(await COTStaking.totalStaked()).to.equal(0);
+   
     });
       
 
