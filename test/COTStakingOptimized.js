@@ -94,8 +94,7 @@ describe("COTStakingInitializable", function () {
   
       await fixtures.stakedToken.approve(fixtures.COTStaking.address, amountToStake);
       await fixtures.COTStaking.connect(fixtures.user).stake(amountToStake);
-  
-      const blockNumberBeforeAdvance = await ethers.provider.getBlockNumber();
+
       const blockToAdvance = 5;
       const expectedReward = amountToStake.mul(fixtures.rewardRate).mul(blockToAdvance).div(fixtures.poolDuration);
   
@@ -112,8 +111,8 @@ describe("COTStakingInitializable", function () {
       const pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
   
       console.log(`Pending rewards: ${pendingRewards}`);
-  
       expect(pendingRewards).to.be.equal(expectedReward);
+      
     });
   });
 

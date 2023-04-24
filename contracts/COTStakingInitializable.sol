@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
+import "hardhat/console.sol";
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -16,11 +17,10 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
 
     IERC20Metadata public cotToken;
-    uint256 public poolSize;
-    uint256 public rewardRate;
-    uint256 public rewardTokensValue;
-    uint256 public minStackingLockTime;
-    uint256 public poolDuration;
+    uint256 public poolSize; // maximum COT allowed to be staked in the pool
+    uint256 public rewardRate; // reward rate in percentage 
+    uint256 public minStackingLockTime; // minimum locking time in blocks
+    uint256 public poolDuration; // pool duration in blocks
 
     uint256 private _totalStaked;
     uint256 private _lastBlockReward;
@@ -57,7 +57,6 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         rewardRate = rewardRate_;
         minStackingLockTime = minStackingLockTime_;
         poolDuration = poolDuration_;
-        rewardTokensValue = poolSize.mul(rewardRate).div(100);
     }
 
     // @notice Stakes a specified amount of COT tokens.
@@ -82,27 +81,10 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         emit Staked(msg.sender, amount);
     }
 
-     /// @notice Unstakes tokens and claims rewards.
+     /// @notice Unstakes tokens and claims rewards. TBD
 
     function unstake() external nonReentrant {
-        Stake storage stake_ = _stakes[msg.sender];
-
-        require(stake_.amount > 0, "COTStaking: No active stake");
-        require(block.number >= stake_.startBlock.add(minStackingLockTime), "COTStaking: Minimum staking lock time not reached");
-        require(!stake_.claimed, "COTStaking: Rewards already claimed");
-
-        uint256 blockRewardRate = rewardTokensValue.div(poolDuration);
-        uint256 reward = _calculateReward(stake_.amount, stake_.startBlock, blockRewardRate);
-        _lastBlockReward = block.number;
-
-        cotToken.safeTransfer(msg.sender, stake_.amount);
-        cotToken.safeTransfer(msg.sender, reward);
-
-        emit Unstaked(msg.sender, stake_.amount);
-        stake_.amount = 0;
-        stake_.claimed = true;
-
-        emit RewardClaimed(msg.sender, reward);
+       
     }
 
     /**
@@ -144,16 +126,30 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
      * @return pendingRewards The pending rewards for the specified user.
      */
 
-function userPendingRewards(address user) public view returns (uint256 pendingRewards) {
+    function userPendingRewards(address user) public view returns (uint256 pendingRewards) {
     Stake storage stake_ = _stakes[user];
 
     if (stake_.amount > 0 && !stake_.claimed) {
-        uint256 blockRewardRate = rewardTokensValue.div(poolDuration);
-        pendingRewards = _calculateReward(stake_.amount, stake_.startBlock, blockRewardRate);
+       
+        uint256 blockPassed = block.number.sub(stake_.startBlock);
+        uint256 userRewards = blockPassed.mul(rewardRate).mul(stake_.amount).div(poolDuration);
+
+        console.log('* SOL * Start block:', stake_.startBlock);
+        console.log('* SOL * Current block:', block.number);
+        console.log('* SOL * User staked amount:', stake_.amount);
+        console.log('* SOL * Passed blocks:', blockPassed);
+        console.log('* SOL * Pending Rewards: ', userRewards);
+        
+        pendingRewards = userRewards;
+
+
     }
     
     return pendingRewards;
 }
+
+
+
 
 
 
