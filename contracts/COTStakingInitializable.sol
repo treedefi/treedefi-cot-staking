@@ -82,7 +82,8 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         emit Staked(msg.sender, amount);
     }
 
-        /// @notice Unstakes tokens and claims rewards.
+     /// @notice Unstakes tokens and claims rewards.
+
     function unstake() external nonReentrant {
         Stake storage stake_ = _stakes[msg.sender];
 
@@ -90,8 +91,8 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         require(block.number >= stake_.startBlock.add(minStackingLockTime), "COTStaking: Minimum staking lock time not reached");
         require(!stake_.claimed, "COTStaking: Rewards already claimed");
 
-        uint256 blockRewardRate = stake_.amount.mul(rewardRate).div(poolDuration);
-        uint256 reward = _calculateReward(stake_.amount, stake_.startBlock, block.number, blockRewardRate);
+        uint256 blockRewardRate = rewardTokensValue.div(poolDuration);
+        uint256 reward = _calculateReward(stake_.amount, stake_.startBlock, blockRewardRate);
         _lastBlockReward = block.number;
 
         cotToken.safeTransfer(msg.sender, stake_.amount);
@@ -105,20 +106,18 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
     }
 
     /**
-     * @notice Calculates the reward for a given stake.
+     * @notice Calculate the pending rewards for a given stake.
      * @param amount The amount of COT tokens staked.
      * @param startBlock The starting block of the stake.
-     * @param endBlock The ending block of the stake.
      * @param blockRewardRate The computed block reward rate based on user stake and reward rate.
-     * @return reward The calculated reward amount.
+     * @return pending_reward The calculated pending reward amount.
      */
 
-    function _calculateReward(uint256 amount, uint256 startBlock, uint256 endBlock, uint256 blockRewardRate) private view returns (uint256) {
-        uint256 blocksStaked = endBlock.sub(startBlock);
-        uint256 reward = amount.mul(blockRewardRate).mul(blocksStaked).div(poolDuration);
-        return reward;
+    function _calculateReward(uint256 amount, uint256 startBlock, uint256 blockRewardRate) private view returns (uint256) {
+        uint256 blockPassed = block.number.sub(startBlock);
+        uint256 pending_reward = amount.mul(blockRewardRate).mul(blockPassed).div(poolDuration);
+        return pending_reward;
     }
-
 
     /**
      * @notice Returns the remaining stake capacity in the pool.
@@ -133,24 +132,28 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
      * @param user The address of the user.
      * @return stake The user's stake details.
      */
+
+
     function getUserStake(address user) external view returns (Stake memory) {
         return _stakes[user];
     }
 
     /**
-     * @notice Calculate the pending rewards for a user
-     * @param user The address of the user to query the rewards for
-     * @return pendingRewards The pending rewards for the specified user
+     * @notice Calculate the pending rewards for a user.
+     * @param user The address of the user to query the rewards for.
+     * @return pendingRewards The pending rewards for the specified user.
      */
-    function userPendingRewards(address user) public view returns (uint256 pendingRewards) {
-        Stake storage stake_ = _stakes[user];
 
-        if (stake_.amount > 0 && !stake_.claimed) {
-            uint256 endBlock = block.number < stake_.endBlock ? block.number : stake_.endBlock;
-            uint256 blockRewardRate = rewardTokensValue.div(poolDuration);
-            pendingRewards = _calculateReward(stake_.amount, stake_.startBlock, endBlock, blockRewardRate);
-        }
+function userPendingRewards(address user) public view returns (uint256 pendingRewards) {
+    Stake storage stake_ = _stakes[user];
+
+    if (stake_.amount > 0 && !stake_.claimed) {
+        uint256 blockRewardRate = rewardTokensValue.div(poolDuration);
+        pendingRewards = _calculateReward(stake_.amount, stake_.startBlock, blockRewardRate);
     }
+    
+    return pendingRewards;
+}
 
 
 
