@@ -96,7 +96,7 @@ describe("COTStakingInitializable", function () {
       await fixtures.COTStaking.connect(fixtures.user).stake(amountToStake);
 
       const blockToAdvance = 5;
-      const expectedReward = amountToStake.mul(fixtures.rewardRate).mul(blockToAdvance).div(fixtures.poolDuration);
+      const expectedReward = amountToStake.mul(fixtures.rewardRate).mul(blockToAdvance).div(fixtures.poolDuration).div(100);
   
       console.log(`Amount to stake: ${amountToStake}`);
       console.log(`Reward rate: ${fixtures.rewardRate}`);
@@ -112,7 +112,7 @@ describe("COTStakingInitializable", function () {
   
       console.log(`Pending rewards: ${pendingRewards}`);
       expect(pendingRewards).to.be.equal(expectedReward);
-      
+
     });
   });
 
