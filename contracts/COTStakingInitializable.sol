@@ -81,44 +81,47 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         emit Staked(msg.sender, amount);
     }
 
-    /// @notice Unstakes tokens and claims rewards for the user
-/// @dev This function checks if the user has an active stake, and if the minimum staking lock time is reached. It then calculates the user's pending rewards, transfers the unstaked tokens and rewards to the user, and updates the total staked amount and stake info.
-function unstake() external nonReentrant {
-    // Load the stake information of the user
-    Stake storage stake_ = _stakes[msg.sender];
+    /** @notice Unstakes tokens and claims rewards for the user
+     *  @dev This function checks if the user has an active stake, and if the minimum staking lock time is reached. It then calculates the user's pending rewards, transfers the unstaked tokens and rewards to the user, and updates the total staked amount and stake info.
+     */
+    
+    function unstake() external nonReentrant {
+        // Load the stake information of the user
+        Stake storage stake_ = _stakes[msg.sender];
 
-    // Check if the user has an active stake
-    require(stake_.amount > 0, "COTStaking: No active stake");
+        // Check if the user has an active stake
+        require(stake_.amount > 0, "COTStaking: No active stake");
 
-    // Check if the minimum staking lock time is reached
-    require(block.number >= stake_.startBlock.add(minStackingLockTime), "COTStaking: Minimum staking lock time not reached");
+        // Check if the minimum staking lock time is reached
+        require(block.number >= stake_.startBlock.add(minStackingLockTime), "COTStaking: Minimum staking lock time not reached");
 
-    // Check if the user has already claimed their rewards
-    require(!stake_.claimed, "COTStaking: Rewards already claimed");
+        // Check if the user has already claimed their rewards
+        require(!stake_.claimed, "COTStaking: Rewards already claimed");
 
-    // Calculate the user's pending rewards
-    uint256 userRewards = userPendingRewards(msg.sender);
+        // Calculate the user's pending rewards
+        uint256 userRewards = userPendingRewards(msg.sender);
 
-    // Transfer the unstaked tokens and rewards to the user
-    cotToken.safeTransfer(msg.sender, stake_.amount.add(userRewards));
+        // Transfer the unstaked tokens and rewards to the user
+        cotToken.safeTransfer(msg.sender, stake_.amount.add(userRewards));
 
-    // Update the total staked amount
-    _totalStaked = _totalStaked.sub(stake_.amount);
+        // Update the total staked amount
+        _totalStaked = _totalStaked.sub(stake_.amount);
 
-    // Reset the user's stake amount and set the claimed status to true
-    stake_.amount = 0;
-    stake_.claimed = true;
+        // Reset the user's stake amount and set the claimed status to true
+        stake_.amount = 0;
+        stake_.claimed = true;
 
-    // Emit the Unstaked and RewardClaimed events
-    emit Unstaked(msg.sender, stake_.amount);
-    emit RewardClaimed(msg.sender, userRewards);
-}
+        // Emit the Unstaked and RewardClaimed events
+        emit Unstaked(msg.sender, stake_.amount);
+        emit RewardClaimed(msg.sender, userRewards);
+    }
 
 
     /**
      * @notice Returns the remaining stake capacity in the pool.
      * @return The remaining stake capacity.
      */
+
     function getRemainingStakeCapacity() public view returns (uint256) {
         return poolSize.sub(_totalStaked);
     }
@@ -128,7 +131,6 @@ function unstake() external nonReentrant {
      * @param user The address of the user.
      * @return stake The user's stake details.
      */
-
 
     function getUserStake(address user) external view returns (Stake memory) {
         return _stakes[user];
