@@ -98,19 +98,11 @@ describe("COTStakingInitializable", function () {
       const blockToAdvance = 5;
       const expectedReward = amountToStake.mul(fixtures.rewardRate).mul(blockToAdvance).div(fixtures.poolDuration).div(100);
   
-      console.log(`Amount to stake: ${amountToStake}`);
-      console.log(`Reward rate: ${fixtures.rewardRate}`);
-      console.log(`Blocks to advance: ${blockToAdvance}`);
-      console.log(`Pool duration: ${fixtures.poolDuration}`);
-      console.log(`Expected reward: ${expectedReward}`);
-  
       for (let i = 0; i < blockToAdvance; i++) {
         await network.provider.send("evm_mine");
       }
   
       const pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
-  
-      console.log(`Pending rewards: ${pendingRewards}`);
       expect(pendingRewards).to.be.equal(expectedReward);
 
     });
@@ -131,7 +123,6 @@ describe("COTStakingInitializable", function () {
     
         // Get the user's initial COT token balance before staking
         const userInitialBalance = await fixtures.stakedToken.balanceOf(fixtures.user.address);
-        console.log('** HH ** user initial balance: ' + userInitialBalance);
         const stakeInfo = await fixtures.COTStaking.getUserStake(fixtures.user.address);
 
         // advance 110 blocks (TODO: advance the necessary blocks to execute the unstake function)
@@ -143,14 +134,11 @@ describe("COTStakingInitializable", function () {
 
         // compute expected reward (NOTE: we added 1 more block to compute it correctly)
         const expectedReward = stakeAmount.mul(fixtures.rewardRate).mul(blockToAdvance+1).div(fixtures.poolDuration).div(100);
-        console.log('** HH ** expected reward: ' + expectedReward);
 
         // execute unstake function
         await fixtures.COTStaking.connect(fixtures.user).unstake();
         const userFinalBalance = await fixtures.stakedToken.balanceOf(fixtures.user.address);
-        console.log('** HH ** user final balance: ' + userFinalBalance);
         const diffBalance = userFinalBalance.sub(userInitialBalance);
-        console.log('** HH ** diff: ' + diffBalance);
 
         // the updated balance (amount got from the SC) should be equal to saked amount + expected Reward
         expect(diffBalance).to.be.equal(stakeAmount.add(expectedReward));
@@ -163,7 +151,7 @@ describe("COTStakingInitializable", function () {
       await expect(fixtures.COTStaking.connect(fixtures.user).unstake()).to.be.revertedWith("COTStaking: No active stake");
     });
     
-    /*
+
     it("should revert if the minimum staking lock time is not reached", async () => {
       const stakeAmount = ethers.utils.parseEther("500");
       await fixtures.stakedToken.approve(fixtures.COTStaking.address, stakeAmount);
@@ -174,19 +162,6 @@ describe("COTStakingInitializable", function () {
       );
     });
   
-    it("should revert if rewards have already been claimed", async () => {
-      const stakeAmount = ethers.utils.parseEther("500");
-      await fixtures.stakedToken.approve(fixtures.COTStaking.address, stakeAmount);
-      await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount);
-  
-      await network.provider.send("evm_increaseTime", [fixtures.minStackingLockTime]);
-      await network.provider.send("evm_mine");
-  
-      await fixtures.COTStaking.connect(fixtures.user).unstake();
-      await expect(fixtures.COTStaking.connect(fixtures.user).unstake()).to.be.revertedWith(
-        "COTStaking: Rewards already claimed"
-      );
-    }); */
   });
   
 
