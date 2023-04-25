@@ -34,6 +34,7 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         uint256 startBlock;
         uint256 endBlock;
         bool claimed;
+        uint256 earnedRewards;
     }
 
     mapping(address => Stake) private _stakes;
@@ -66,22 +67,32 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
     }
 
     /**
-    * @notice Stakes a specified amount of COT tokens.
-    * @param amount The amount of COT tokens to stake.
-    */
-
+     * @notice Stakes a specified amount of COT tokens or increases an existing stake.
+     * @dev If the user has an existing stake, the function updates the staked amount, endBlock, and earnedRewards.
+     * If the user doesn't have an existing stake, a new stake is created.
+     * @param amount The amount of COT tokens to stake.
+     */
     function stake(uint256 amount) external nonReentrant {
         require(amount > 0, "COTStaking: Amount must be greater than zero");
         require(_totalStaked.add(amount) <= poolSize, "COTStaking: Pool size limit reached");
 
         Stake storage stake_ = _stakes[msg.sender];
 
-        require(stake_.amount == 0, "COTStaking: User already staked");
-
-        stake_.amount = amount;
-        stake_.startBlock = block.number;
-        stake_.endBlock = block.number.add(minStackingLockTime);
-        stake_.claimed = false;
+        // If the user has an existing stake, update the staked amount and endBlock
+        if (stake_.amount > 0) {
+            uint256 pendingRewards = userPendingRewards(msg.sender);
+            stake_.amount = stake_.amount.add(amount);
+            stake_.endBlock = block.number.add(minStackingLockTime);
+            stake_.earnedRewards = stake_.earnedRewards.add(pendingRewards); // Update earned rewards
+            stake_.startBlock = block.number; // Reset the start block
+        }
+        // If the user doesn't have an existing stake, create a new stake
+        else {
+            stake_.amount = amount;
+            stake_.startBlock = block.number;
+            stake_.endBlock = block.number.add(minStackingLockTime);
+            stake_.claimed = false;
+        }
 
         _totalStaked = _totalStaked.add(amount);
 
@@ -89,38 +100,31 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
 
         emit Staked(msg.sender, amount);
     }
-
-    /** @notice Unstakes tokens and claims rewards for the user
-     *  @dev This function checks if the user has an active stake, and if the minimum staking lock time is reached. It then calculates the user's pending rewards, transfers the unstaked tokens and rewards to the user, and updates the total staked amount and stake info.
-     */
+   
+    /**
+    * @notice Unstakes tokens and claims rewards for the user
+    * @dev This function checks if the user has an active stake, and if the minimum staking lock time is reached.
+    * It then calculates the user's pending rewards, adds the earnedRewards,
+    * transfers the unstaked tokens and rewards to the user, and updates the total staked amount and stake info.
+    */
     
     function unstake() external nonReentrant {
-        // Load the stake information of the user
         Stake storage stake_ = _stakes[msg.sender];
 
-        // Check if the user has an active stake
         require(stake_.amount > 0, "COTStaking: No active stake");
-
-        // Check if the minimum staking lock time is reached
         require(block.number >= stake_.startBlock.add(minStackingLockTime), "COTStaking: Minimum staking lock time not reached");
-
-        // Check if the user has already claimed their rewards
         require(!stake_.claimed, "COTStaking: Rewards already claimed");
 
-        // Calculate the user's pending rewards
-        uint256 userRewards = userPendingRewards(msg.sender);
+        uint256 userRewards = userPendingRewards(msg.sender).add(stake_.earnedRewards); // Add the earnedRewards to the user's pending rewards
 
-        // Transfer the unstaked tokens and rewards to the user
         cotToken.safeTransfer(msg.sender, stake_.amount.add(userRewards));
 
-        // Update the total staked amount
         _totalStaked = _totalStaked.sub(stake_.amount);
 
-        // Reset the user's stake amount and set the claimed status to true
         stake_.amount = 0;
         stake_.claimed = true;
+        stake_.earnedRewards = 0; // Reset the earnedRewards counter
 
-        // Emit the Unstaked and RewardClaimed events
         emit Unstaked(msg.sender, stake_.amount);
         emit RewardClaimed(msg.sender, userRewards);
     }
