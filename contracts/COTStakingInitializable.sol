@@ -10,8 +10,10 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-/// @title COT Staking Contract
-/// @notice A contract for staking COT tokens and earning rewards.
+/** @title COT Staking Contract
+/* @notice A contract for staking COT tokens and earning rewards.
+*/ 
+
 contract COTStakingInitializable is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20Metadata;
     using SafeMath for uint256;
@@ -38,12 +40,14 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
     event Unstaked(address indexed user, uint256 amount);
     event RewardClaimed(address indexed user, uint256 amount);
 
-    /// @notice Initializes the staking contract.
-    /// @param cotToken_ The address of the COT token.
-    /// @param poolSize_ The total size of the staking pool.
-    /// @param rewardRate_ The rate at which rewards are earned as a percentage.
-    /// @param minStackingLockTime_ The minimum lock time for staking.
-    /// @param poolDuration_ The duration of the staking pool.
+    /** 
+    * @notice Initializes the staking contract.
+    * @param cotToken_ The address of the COT token.
+    * @param poolSize_ The total size of the staking pool.
+    * @param rewardRate_ The rate at which rewards are earned as a percentage.
+    * @param minStackingLockTime_ The minimum lock time for staking.
+    * @param poolDuration_ The duration of the staking pool.
+    * */ 
 
     function initialize(
         address cotToken_,
@@ -135,6 +139,10 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
     function getUserStake(address user) external view returns (Stake memory) {
         return _stakes[user];
     }
+
+    /**
+     * @notice Returns COT balance of this contract
+     */
 
     function getCOTBalance() public view returns (uint256) {
         return cotToken.balanceOf(address(this));
