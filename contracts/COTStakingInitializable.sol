@@ -44,7 +44,7 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
     * @notice Initializes the staking contract
     * @param cotToken_ The address of the COT token
     * @param poolSize_ The total size of the staking pool as number of token accepted
-    * @param rewardRate_ The rate at which rewards are earned as a percentags
+    * @param rewardRate_ The rate at which rewards are earned as a percentage
     * @param minStackingLockTime_ The minimum lock time for staking as block numbers
     * @param poolDuration_ The duration of the staking pool as block numbers
     * */ 
@@ -67,7 +67,7 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
     * @notice Stakes a specified amount of COT tokens.
     * @param amount The amount of COT tokens to stake.
     */
-   
+
     function stake(uint256 amount) external nonReentrant {
         require(amount > 0, "COTStaking: Amount must be greater than zero");
         require(_totalStaked.add(amount) <= poolSize, "COTStaking: Pool size limit reached");
