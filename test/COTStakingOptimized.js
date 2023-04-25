@@ -86,6 +86,22 @@ describe("COTStakingInitializable", function () {
       const COTStakingBalance = await fixtures.stakedToken.balanceOf(fixtures.COTStaking.address);
       expect(COTStakingBalance).to.equal(stakeAmount);
     });
+
+    it("should stake tokens again successfully", async () => {
+        const stakeAmount = ethers.utils.parseEther("500");
+        const blockNumberBeforeStake = await ethers.provider.getBlockNumber();
+        await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount);
+    
+        const stakeInfo = await fixtures.COTStaking.getUserStake(fixtures.user.address);
+    
+        expect(stakeInfo.amount).to.equal(stakeAmount);
+        expect(stakeInfo.startBlock).to.be.closeTo(blockNumberBeforeStake, 1); // Allow a difference of 1
+        expect(stakeInfo.endBlock).to.be.closeTo(blockNumberBeforeStake + fixtures.minStackingLockTime, 1); // Allow a difference of 1
+        expect(stakeInfo.claimed).to.equal(false);
+    
+        const COTStakingBalance = await fixtures.stakedToken.balanceOf(fixtures.COTStaking.address);
+        expect(COTStakingBalance).to.equal(stakeAmount);
+      });
   });
 
   describe("PendingReward", function () {

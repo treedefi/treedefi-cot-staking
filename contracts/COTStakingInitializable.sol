@@ -13,6 +13,7 @@ import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 /** @title COT Staking Contract
 /* @notice A contract for staking COT tokens and earning rewards.
+/* @author Hashdev LTD
 */ 
 
 contract COTStakingInitializable is Ownable, ReentrancyGuard {
@@ -171,9 +172,6 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
     }
     return pendingRewards;
 }
-
-
-
 
 
 
