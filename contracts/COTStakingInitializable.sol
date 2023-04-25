@@ -84,13 +84,23 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
      /// @notice Unstakes tokens and claims rewards
 
     function unstake() external nonReentrant {
+
         Stake storage stake_ = _stakes[msg.sender];
 
         require(stake_.amount > 0, "COTStaking: No active stake");
+
+        console.log ('** SC ** Current block: ', block.number);
+        console.log ('** SC ** Unlock block: ', stake_.startBlock.add(minStackingLockTime));
+        console.log ('** SC ** Block passed: ', block.number.sub(stake_.startBlock));
+        console.log ('** SC ** COT Balance: ', getCOTBalance());
+        
         require(block.number >= stake_.startBlock.add(minStackingLockTime), "COTStaking: Minimum staking lock time not reached");
         require(!stake_.claimed, "COTStaking: Rewards already claimed");
 
         uint256 userRewards = userPendingRewards(msg.sender);
+        console.log ('** SOL ** User Pending Rewards: ', userRewards);
+        console.log ('** SOL ** User Stake Amount: ', stake_.amount);
+
 
         cotToken.safeTransfer(msg.sender, stake_.amount.add(userRewards));
         _totalStaked = _totalStaked.sub(stake_.amount);
@@ -119,6 +129,10 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
 
     function getUserStake(address user) external view returns (Stake memory) {
         return _stakes[user];
+    }
+
+    function getCOTBalance() public view returns (uint256) {
+        return cotToken.balanceOf(address(this));
     }
 
     /**
