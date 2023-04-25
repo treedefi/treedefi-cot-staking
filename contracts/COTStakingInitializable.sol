@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
+pragma abicoder v2;
 import "hardhat/console.sol";
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
