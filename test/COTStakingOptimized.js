@@ -161,6 +161,54 @@ describe("COTStakingInitializable", function () {
 
         
       });
+
+      it("should correctly unstake and compute rewards after staking multiple times", async () => {
+        const stakeAmount1 = ethers.utils.parseEther("500");
+        const stakeAmount2 = ethers.utils.parseEther("250");
+        const blocksToAdvance = 50;
+      
+        // First stake
+        await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount1);
+      
+        // Advance some blocks
+        for (let i = 0; i < blocksToAdvance; i++) {
+          await network.provider.send("evm_mine");
+        }
+      
+        // Second stake
+        await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount2);
+      
+        // Advance more blocks (enough to pass the staking period)
+        const blocksToAdvance2 = fixtures.minStackingLockTime + 10;
+        for (let i = 0; i < blocksToAdvance2; i++) {
+          await network.provider.send("evm_mine");
+        }
+      
+        // Check if the user cannot unstake before the staking period ends
+        await expect(fixtures.COTStaking.connect(fixtures.user).unstake()).to.be.revertedWith(
+          "COTStaking: Minimum staking lock time not reached"
+        );
+      
+        // Advance more blocks to pass the staking period
+        const additionalBlocks = 10;
+        for (let i = 0; i < additionalBlocks; i++) {
+          await network.provider.send("evm_mine");
+        }
+      
+        // Unstake and claim rewards
+        const userInitialBalance = await fixtures.rewardToken.balanceOf(fixtures.user.address);
+        await fixtures.COTStaking.connect(fixtures.user).unstake();
+        const userFinalBalance = await fixtures.rewardToken.balanceOf(fixtures.user.address);
+      
+        // Compute expected rewards
+        const totalStakedAmount = stakeAmount1.add(stakeAmount2);
+        const totalBlocks = blocksToAdvance + blocksToAdvance2 + additionalBlocks;
+        const expectedReward = totalStakedAmount.mul(fixtures.rewardRate).mul(totalBlocks).div(fixtures.poolDuration).div(100);
+      
+        // Check if the user received the correct rewards
+        expect(userFinalBalance.sub(userInitialBalance)).to.equal(expectedReward);
+      });
+      
   
 
     it("should revert if the user has not staked yet", async () => {
@@ -190,7 +238,6 @@ describe("COTStakingInitializable", function () {
         const initialStakeInfo = await fixtures.COTStaking.getUserStake(fixtures.user.address);
         const initialEndBlock =  initialStakeInfo.endBlock;
         const initialBlockNumber = await ethers.provider.getBlockNumber();
-
 
         console.log('Initial Block Number: ' + initialBlockNumber);
         console.log('Initial End Block: ' + initialEndBlock);
