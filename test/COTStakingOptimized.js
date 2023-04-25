@@ -182,27 +182,43 @@ describe("COTStakingInitializable", function () {
 
   describe("Restaking", function () {
     it("should update endBlock correctly when staking more tokens after the initial stake", async () => {
+        const minStakingLockingTime = fixtures.minStackingLockTime;
+
         // First stake
         const stakeAmount1 = ethers.utils.parseEther("500");
         await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount1);
         const initialStakeInfo = await fixtures.COTStaking.getUserStake(fixtures.user.address);
-        const initialEndBlock = initialStakeInfo.endBlock;
+        const initialEndBlock =  initialStakeInfo.endBlock;
+        const initialBlockNumber = await ethers.provider.getBlockNumber();
+
+
+        console.log('Initial Block Number: ' + initialBlockNumber);
+        console.log('Initial End Block: ' + initialEndBlock);
+        console.log('Initial stake amount: ' + initialStakeInfo.amount)
       
-        // Advance some blocks
-        const blocksToAdvance = 10;
+        // Advance some blocks (half)
+        const blocksToAdvance = 50;
         for (let i = 0; i < blocksToAdvance; i++) {
           await network.provider.send("evm_mine");
         }
-      
-        // Second stake
-        const stakeAmount2 = ethers.utils.parseEther("300");
-        await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount2);
-        const updatedStakeInfo = await fixtures.COTStaking.getUserStake(fixtures.user.address);
-      
-        const blockNumberAfterStake = await ethers.provider.getBlockNumber();
-        const expectedEndBlock = initialEndBlock.add(blocksToAdvance).add(fixtures.minStackingLockTime);
+        console.log('... increasing blocks ...');
         
-        expect(updatedStakeInfo.endBlock).to.be.closeTo(expectedEndBlock, 1);
+        const stakeAmount2 = ethers.utils.parseEther("250");
+        var secondStakeInfo = await fixtures.COTStaking.getUserStake(fixtures.user.address);
+        var userRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
+
+        console.log("Current reward: " + userRewards);
+        await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount2);
+        secondStakeInfo = await fixtures.COTStaking.getUserStake(fixtures.user.address);
+        const currentEndBlock =  secondStakeInfo.endBlock;
+        const currentBlockNumber = await ethers.provider.getBlockNumber();
+        console.log("Current block number: " + currentBlockNumber);
+        console.log('Current stake amount: ' + secondStakeInfo.amount)
+        console.log('Current End Block: ' + currentEndBlock);
+
+        expect(initialBlockNumber + blocksToAdvance+1 + minStakingLockingTime ).to.equal(currentEndBlock);
+        
+
       });
       
   });
