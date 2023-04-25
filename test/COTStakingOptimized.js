@@ -23,7 +23,7 @@ async function setup() {
   await rewardToken.mint(COTStaking.address, ethers.utils.parseEther("1000"));
 
   // Initialize the staking contract
-  const poolSize = ethers.utils.parseEther("500");
+  const poolSize = ethers.utils.parseEther("1000");
   const rewardRate = 10;
   const minStackingLockTime = 100;
   const poolDuration = 200;
@@ -179,7 +179,33 @@ describe("COTStakingInitializable", function () {
     });
   
   });
-  
+
+  describe("Restaking", function () {
+    it("should update endBlock correctly when staking more tokens after the initial stake", async () => {
+        // First stake
+        const stakeAmount1 = ethers.utils.parseEther("500");
+        await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount1);
+        const initialStakeInfo = await fixtures.COTStaking.getUserStake(fixtures.user.address);
+        const initialEndBlock = initialStakeInfo.endBlock;
+      
+        // Advance some blocks
+        const blocksToAdvance = 10;
+        for (let i = 0; i < blocksToAdvance; i++) {
+          await network.provider.send("evm_mine");
+        }
+      
+        // Second stake
+        const stakeAmount2 = ethers.utils.parseEther("300");
+        await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount2);
+        const updatedStakeInfo = await fixtures.COTStaking.getUserStake(fixtures.user.address);
+      
+        const blockNumberAfterStake = await ethers.provider.getBlockNumber();
+        const expectedEndBlock = initialEndBlock.add(blocksToAdvance).add(fixtures.minStackingLockTime);
+        
+        expect(updatedStakeInfo.endBlock).to.be.closeTo(expectedEndBlock, 1);
+      });
+      
+  });
 
   
   
