@@ -33,7 +33,6 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         uint256 amount;
         uint256 startBlock;
         uint256 endBlock;
-        bool claimed;
         uint256 earnedRewards;
     }
 
@@ -91,7 +90,6 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
             stake_.amount = amount;
             stake_.startBlock = block.number;
             stake_.endBlock = block.number.add(minStackingLockTime);
-            stake_.claimed = false;
         }
 
         _totalStaked = _totalStaked.add(amount);
@@ -113,7 +111,6 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
 
         require(stake_.amount > 0, "COTStaking: No active stake");
         require(block.number >= stake_.startBlock.add(minStackingLockTime), "COTStaking: Minimum staking lock time not reached");
-        require(!stake_.claimed, "COTStaking: Rewards already claimed");
 
         uint256 userRewards = userPendingRewards(msg.sender).add(stake_.earnedRewards); // Add the earnedRewards to the user's pending rewards
 
@@ -121,9 +118,11 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
 
         _totalStaked = _totalStaked.sub(stake_.amount);
 
+        // Clear the user stake structure
         stake_.amount = 0;
-        stake_.claimed = true;
-        stake_.earnedRewards = 0; // Reset the earnedRewards counter
+        stake_.startBlock = 0;
+        stake_.endBlock = 0;
+        stake_.earnedRewards = 0;
 
         emit Unstaked(msg.sender, stake_.amount);
         emit RewardClaimed(msg.sender, userRewards);
@@ -166,7 +165,7 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
     function userPendingRewards(address user) public view returns (uint256 pendingRewards) {
     Stake storage stake_ = _stakes[user];
 
-    if (stake_.amount > 0 && !stake_.claimed) {
+    if (stake_.amount > 0) {
        
         uint256 blockPassed = block.number.sub(stake_.startBlock);
         // convert user reward to 100

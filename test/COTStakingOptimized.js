@@ -81,7 +81,7 @@ describe("COTStakingInitializable", function () {
       expect(stakeInfo.amount).to.equal(stakeAmount);
       expect(stakeInfo.startBlock).to.be.closeTo(blockNumberBeforeStake, 1); // Allow a difference of 1
       expect(stakeInfo.endBlock).to.be.closeTo(blockNumberBeforeStake + fixtures.minStackingLockTime, 1); // Allow a difference of 1
-      expect(stakeInfo.claimed).to.equal(false);
+
   
       const COTStakingBalance = await fixtures.stakedToken.balanceOf(fixtures.COTStaking.address);
       expect(COTStakingBalance).to.equal(stakeAmount);
@@ -97,7 +97,7 @@ describe("COTStakingInitializable", function () {
         expect(stakeInfo.amount).to.equal(stakeAmount);
         expect(stakeInfo.startBlock).to.be.closeTo(blockNumberBeforeStake, 1); // Allow a difference of 1
         expect(stakeInfo.endBlock).to.be.closeTo(blockNumberBeforeStake + fixtures.minStackingLockTime, 1); // Allow a difference of 1
-        expect(stakeInfo.claimed).to.equal(false);
+
     
         const COTStakingBalance = await fixtures.stakedToken.balanceOf(fixtures.COTStaking.address);
         expect(COTStakingBalance).to.equal(stakeAmount);
