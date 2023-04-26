@@ -168,8 +168,12 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
     if (stake_.amount > 0) {
        
         uint256 blockPassed = block.number.sub(stake_.startBlock);
+        console.log('*** SC ** block passed: ', blockPassed);
+        console.log('*** SC ** stake amount: ', stake_.amount);
+        console.log('*** SC ** pool duration: ', poolDuration);
         // convert user reward to 100
         uint256 userRewards = blockPassed.mul(rewardRate).mul(stake_.amount).div(poolDuration).div(100);
+        console.log('*** SC ** pending reward: ', userRewards);
         pendingRewards = userRewards;
 
     }
