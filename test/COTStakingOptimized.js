@@ -222,13 +222,17 @@ describe("COTStakingInitializable", function () {
  
         // user initial balance of COT
         const userInitialBalance = await fixtures.stakedToken.balanceOf(fixtures.user.address);
-        console.log('** HH ** Initial balance: ' + userInitialBalance);
+        var blockNumber = await ethers.provider.getBlockNumber();
+        console.log('** HH ** Initial balance @ ' + blockNumber + ' block: ' + userInitialBalance);
 
         // first stake of 500 COT
         var stakeAmount = ethers.utils.parseEther("500");
         await fixtures.stakedToken.approve(fixtures.COTStaking.address, stakeAmount);
         await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount);
-     
+        blockNumber = await ethers.provider.getBlockNumber();
+        console.log('** HH ** Staked amount @ ' + blockNumber + ' block: ' + stakeAmount);
+
+
         var blockToAdvance = 50;
         for (let i = 0; i < blockToAdvance; i++) {
           await network.provider.send("evm_mine");
@@ -236,12 +240,15 @@ describe("COTStakingInitializable", function () {
 
         // pending rewards from the first staking action
         var pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
-        var blockNumber = await ethers.provider.getBlockNumber();
+        blockNumber = await ethers.provider.getBlockNumber();
         console.log ('** HH ** Pending rewards @ ' + blockNumber + ' block: ' + pendingRewards);
 
         // second stake after advancing blocks
         stakeAmount = ethers.utils.parseEther("250");
         await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount);
+        blockNumber = await ethers.provider.getBlockNumber();
+        console.log('** HH ** Staked amount @ ' + blockNumber + ' block: ' + stakeAmount);
+
 
          // pending rewards after second action
         pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
