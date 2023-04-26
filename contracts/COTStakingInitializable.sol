@@ -72,6 +72,7 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
      * @param amount The amount of COT tokens to stake.
      */
     function stake(uint256 amount) external nonReentrant {
+        // TODO: UPDATE THE STAKE AMOUNT TO CURRENT_AMOUNT ( do not increase the first amount! )
         require(amount > 0, "COTStaking: Amount must be greater than zero");
         require(_totalStaked.add(amount) <= poolSize, "COTStaking: Pool size limit reached");
 
@@ -160,6 +161,7 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
      * @notice Calculate the pending rewards for a user.
      * @param user The address of the user to query the rewards for.
      * @return pendingRewards The pending rewards for the specified user.
+     * @dev TODO: Update the stake 
      */
 
     function userPendingRewards(address user) public view returns (uint256 pendingRewards) {

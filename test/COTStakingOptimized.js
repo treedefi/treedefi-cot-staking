@@ -269,7 +269,7 @@ describe("COTStakingInitializable", function () {
         console.log ('** HH ** Pending rewards after second staking @ ' + blockNumber + ' block: ' + pendingRewards);
         console.log ('** HH ** Pending rewards in the staking struct @ ' + blockNumber + ' block: ' + userInfo.earnedRewards);
 
-
+        
         // unstake action
         await fixtures.COTStaking.connect(fixtures.user).unstake();
         // pending rewards after unstaking
