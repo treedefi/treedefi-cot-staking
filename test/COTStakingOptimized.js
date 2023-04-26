@@ -243,7 +243,7 @@ describe("COTStakingInitializable", function () {
         blockNumber = await ethers.provider.getBlockNumber();
         console.log ('** HH ** Pending rewards @ ' + blockNumber + ' block: ' + pendingRewards);
 
-        // second stake after advancing blocks
+        // second stake 250 after advancing blocks
         stakeAmount = ethers.utils.parseEther("250");
         await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount);
         blockNumber = await ethers.provider.getBlockNumber();
@@ -253,7 +253,9 @@ describe("COTStakingInitializable", function () {
          // pending rewards after second action
         pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
         blockNumber = await ethers.provider.getBlockNumber();
+        var userInfo = await fixtures.COTStaking.getUserStake(fixtures.user.address);
         console.log ('** HH ** Pending rewards after second staking @ ' + blockNumber + ' block: ' + pendingRewards);
+        console.log ('** HH ** Pending rewards in the staking struct @ ' + blockNumber + ' block: ' + userInfo.earnedRewards);
  
         blockToAdvance = 110;
         for (let i = 0; i < blockToAdvance; i++) {
@@ -263,12 +265,14 @@ describe("COTStakingInitializable", function () {
         // pending rewards after second action
         pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
         blockNumber = await ethers.provider.getBlockNumber();
+        userInfo = await fixtures.COTStaking.getUserStake(fixtures.user.address);
         console.log ('** HH ** Pending rewards after second staking @ ' + blockNumber + ' block: ' + pendingRewards);
+        console.log ('** HH ** Pending rewards in the staking struct @ ' + blockNumber + ' block: ' + userInfo.earnedRewards);
 
 
         // unstake action
         await fixtures.COTStaking.connect(fixtures.user).unstake();
-         // pending rewards after unstaking
+        // pending rewards after unstaking
         pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
         blockNumber = await ethers.provider.getBlockNumber();
         console.log ('** HH ** Pending rewards after second staking @ ' + blockNumber + ' block: ' + pendingRewards);
