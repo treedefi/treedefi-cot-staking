@@ -81,7 +81,7 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         // If the user has an existing stake, update the staked amount and endBlock
         if (stake_.amount > 0) {
             uint256 pendingRewards = userPendingRewards(msg.sender);
-            stake_.amount = stake_.amount.add(amount);
+            stake_.amount = amount;
             stake_.endBlock = block.number.add(minStackingLockTime);
             stake_.earnedRewards = stake_.earnedRewards.add(pendingRewards); // Update earned rewards
             stake_.startBlock = block.number; // Reset the start block
