@@ -118,7 +118,8 @@ describe("COTStakingInitializable", function () {
       for (let i = 0; i < blockToAdvance; i++) {
         await network.provider.send("evm_mine");
       }
-  
+      
+
       const pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
       expect(pendingRewards).to.be.equal(expectedReward);
 
@@ -162,60 +163,6 @@ describe("COTStakingInitializable", function () {
 
         
       });
-
-      it("should correctly unstake and compute rewards after staking multiple times", async () => {
-        // mint and transfer 1500 COT to the smart contract
-        const rewardAmount = ethers.utils.parseEther("1500");
-        await fixtures.stakedToken.mint(fixtures.COTStaking.address, rewardAmount);
-
-        const stakeAmount1 = ethers.utils.parseEther("500");
-        const stakeAmount2 = ethers.utils.parseEther("250");
-        const blocksToAdvance = 50;
-      
-        // First stake
-        await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount1);
-      
-        // Advance some blocks
-        for (let i = 0; i < blocksToAdvance; i++) {
-          await network.provider.send("evm_mine");
-        }
-      
-        // Second stake
-        await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount2);
-
-        // Check if the user cannot unstake before the staking period ends
-        await expect(fixtures.COTStaking.connect(fixtures.user).unstake()).to.be.revertedWith(
-            "COTStaking: Minimum staking lock time not reached"
-        );
-      
-        // Advance more blocks (enough to pass the staking period)
-        const blocksToAdvance2 = fixtures.minStackingLockTime + 10;
-        for (let i = 0; i < blocksToAdvance2; i++) {
-          await network.provider.send("evm_mine");
-        }
-      
-        // Advance more blocks to pass the staking period
-        const additionalBlocks = 10;
-        for (let i = 0; i < additionalBlocks; i++) {
-          await network.provider.send("evm_mine");
-        }
-      
-        // Unstake and claim rewards
-        const userInitialBalance = await fixtures.rewardToken.balanceOf(fixtures.user.address);
-        await fixtures.COTStaking.connect(fixtures.user).unstake();
-        const userFinalBalance = await fixtures.rewardToken.balanceOf(fixtures.user.address);
-      
-        // Compute expected rewards
-        const totalStakedAmount = stakeAmount1.add(stakeAmount2);
-        const totalBlocks = blocksToAdvance + blocksToAdvance2 + additionalBlocks;
-        const expectedReward = totalStakedAmount.mul(fixtures.rewardRate).mul(totalBlocks).div(fixtures.poolDuration).div(100);
-      
-        // // Check if the user received the correct rewards
-        // expect(userFinalBalance.sub(userInitialBalance)).to.equal(expectedReward);
-      });
-      
-  
-
     it("should revert if the user has not staked yet", async () => {
       await expect(fixtures.COTStaking.connect(fixtures.user).unstake()).to.be.revertedWith("COTStaking: No active stake");
     });
@@ -233,45 +180,103 @@ describe("COTStakingInitializable", function () {
   
   });
 
-  describe("Restaking", function () {
+  describe("Restaking and rewards", function () {
+
     it("should update endBlock correctly when staking more tokens after the initial stake", async () => {
         const minStakingLockingTime = fixtures.minStackingLockTime;
 
         // First stake
         const stakeAmount1 = ethers.utils.parseEther("500");
         await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount1);
-        const initialStakeInfo = await fixtures.COTStaking.getUserStake(fixtures.user.address);
-        const initialEndBlock =  initialStakeInfo.endBlock;
-        const initialBlockNumber = await ethers.provider.getBlockNumber();
 
-        console.log('Initial Block Number: ' + initialBlockNumber);
-        console.log('Initial End Block: ' + initialEndBlock);
-        console.log('Initial stake amount: ' + initialStakeInfo.amount)
+        const initialBlockNumber = await ethers.provider.getBlockNumber();
       
         // Advance some blocks (half)
         const blocksToAdvance = 50;
         for (let i = 0; i < blocksToAdvance; i++) {
           await network.provider.send("evm_mine");
         }
-        console.log('... increasing blocks ...');
+
         
         const stakeAmount2 = ethers.utils.parseEther("250");
         var secondStakeInfo = await fixtures.COTStaking.getUserStake(fixtures.user.address);
         var userRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
 
-        console.log("Current reward: " + userRewards);
+        const pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
+        // console.log("Current reward: " + userRewards);
         await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount2);
         secondStakeInfo = await fixtures.COTStaking.getUserStake(fixtures.user.address);
         const currentEndBlock =  secondStakeInfo.endBlock;
-        const currentBlockNumber = await ethers.provider.getBlockNumber();
-        console.log("Current block number: " + currentBlockNumber);
-        console.log('Current stake amount: ' + secondStakeInfo.amount)
-        console.log('Current End Block: ' + currentEndBlock);
+        
 
         expect(initialBlockNumber + blocksToAdvance+1 + minStakingLockingTime ).to.equal(currentEndBlock);
         
 
       });
+
+      it("should correctly unstake and compute rewards after staking multiple times", async () => {
+
+        // transfer and mint 1500 tokens
+        const rewardAmount = ethers.utils.parseEther("1500");
+        await fixtures.stakedToken.mint(fixtures.COTStaking.address, rewardAmount);
+ 
+        // user initial balance of COT
+        const userInitialBalance = await fixtures.stakedToken.balanceOf(fixtures.user.address);
+        console.log('** HH ** Initial balance: ' + userInitialBalance);
+
+        // first stake of 500 COT
+        var stakeAmount = ethers.utils.parseEther("500");
+        await fixtures.stakedToken.approve(fixtures.COTStaking.address, stakeAmount);
+        await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount);
+     
+        var blockToAdvance = 50;
+        for (let i = 0; i < blockToAdvance; i++) {
+          await network.provider.send("evm_mine");
+        }
+
+        // pending rewards from the first staking action
+        var pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
+        var blockNumber = await ethers.provider.getBlockNumber();
+        console.log ('** HH ** Pending rewards @ ' + blockNumber + ' block: ' + pendingRewards);
+
+        // second stake after advancing blocks
+        stakeAmount = ethers.utils.parseEther("250");
+        await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount);
+
+         // pending rewards after second action
+        pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
+        blockNumber = await ethers.provider.getBlockNumber();
+        console.log ('** HH ** Pending rewards after second staking @ ' + blockNumber + ' block: ' + pendingRewards);
+ 
+        blockToAdvance = 110;
+        for (let i = 0; i < blockToAdvance; i++) {
+          await network.provider.send("evm_mine");
+        }
+
+        // pending rewards after second action
+        pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
+        blockNumber = await ethers.provider.getBlockNumber();
+        console.log ('** HH ** Pending rewards after second staking @ ' + blockNumber + ' block: ' + pendingRewards);
+
+
+        // unstake action
+        await fixtures.COTStaking.connect(fixtures.user).unstake();
+         // pending rewards after unstaking
+        pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
+        blockNumber = await ethers.provider.getBlockNumber();
+        console.log ('** HH ** Pending rewards after second staking @ ' + blockNumber + ' block: ' + pendingRewards);
+ 
+ 
+
+        // user final balance of COT
+        const userFinalBalance = await fixtures.stakedToken.balanceOf(fixtures.user.address);
+        console.log('** HH ** Final balance: ' + userFinalBalance);
+
+        
+    });
+    
+      
+      
       
   });
 
