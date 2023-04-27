@@ -11,9 +11,12 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-/** @title COT Staking Contract
-/* @notice A contract for staking COT tokens and earning rewards.
-/* @author Hashdev LTD
+/** @title COT Staking contract
+ * @dev This contract uses a linear staking mechanism, 
+ * @dev the amount of rewards earned by a user is proportional to the amount of tokens they have staked and the duration of their stake. 
+ * @dev The contract calculates rewards using a formula that takes into account the stake amount, the reward rate, and the duration of the stake in blocks.
+ * @notice A contract for staking COT tokens and earning rewards.
+* @author Hashdev LTD
 */ 
 
 contract COTStakingInitializable is Ownable, ReentrancyGuard {
@@ -73,7 +76,7 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
     /**
      * @notice Stakes a specified amount of COT tokens or increases an existing stake.
      * @dev If the user has an existing stake, the function updates the staked amount, endBlock, and earnedRewards.
-     * If the user doesn't have an existing stake, a new stake is created.
+     * If the user doesn't have an existing stake, a new stake is created
      * @param amount The amount of COT tokens to stake.
      */
     function stake(uint256 amount) external nonReentrant {
