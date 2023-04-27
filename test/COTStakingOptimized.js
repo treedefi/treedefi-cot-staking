@@ -14,21 +14,24 @@ async function setup() {
   const COTStaking = await COTStakingInitializable.deploy();
 
   // Initialize the staking contract
-  const poolSize = ethers.utils.parseEther("1000");
+  const poolSize = ethers.utils.parseEther("10000");
   const rewardRate = 10;
   const minStackingLockTime = 100;
   const poolDuration = 200;
+  const maxStakePerUser = ethers.utils.parseEther("5000");
 
   await COTStaking.initialize(
     stakedToken.address,
     poolSize,
     rewardRate,
     minStackingLockTime,
-    poolDuration
+    poolDuration,
+    maxStakePerUser,
   );
 
   await stakedToken.transfer(user.address, ethers.utils.parseEther("1000"));
   await stakedToken.connect(user).approve(COTStaking.address, ethers.utils.parseEther("1000"));
+  const poolRewardEndBlock = await COTStaking.poolRewardEndBlock;
 
   return {
     owner,
@@ -39,6 +42,8 @@ async function setup() {
     rewardRate,
     minStackingLockTime,
     poolDuration,
+    poolRewardEndBlock,
+    maxStakePerUser
   };
 }
 
@@ -50,13 +55,20 @@ describe("COTStakingInitializable", function () {
   });
 
   describe("Initialize", function () {
-    it("should initialize the smart contract correctly with parameters", async () => {
+    it("should initialize the smart contract correctly with given parameters", async () => {
+      const blockNumber = await ethers.provider.getBlockNumber();
+      const endBlock = fixtures.poolDuration + blockNumber;
+
       expect(await fixtures.COTStaking.cotToken()).to.equal(fixtures.stakedToken.address);
       expect(await fixtures.COTStaking.poolSize()).to.equal(fixtures.poolSize);
       expect(await fixtures.COTStaking.rewardRate()).to.equal(fixtures.rewardRate);
       expect(await fixtures.COTStaking.minStackingLockTime()).to.equal(fixtures.minStackingLockTime);
       expect(await fixtures.COTStaking.poolDuration()).to.equal(fixtures.poolDuration);
+      expect(await fixtures.COTStaking.maxStakePerUser()).to.equal(fixtures.maxStakePerUser);
       expect(await fixtures.COTStaking.owner()).to.equal(fixtures.owner.address);
+      
+      // allow 2 blocks tolerance
+      expect(await fixtures.COTStaking.poolRewardEndBlock()).to.be.closeTo(endBlock,2);
 
     });
   });
@@ -93,6 +105,17 @@ describe("COTStakingInitializable", function () {
         const COTStakingBalance = await fixtures.stakedToken.balanceOf(fixtures.COTStaking.address);
         expect(COTStakingBalance).to.equal(stakeAmount);
       });
+
+      it("should correctly compute the user stake capacity", async () => {
+        const stakeAmount = ethers.utils.parseEther("500");
+        await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount);
+    
+        const expectedUserCapacity =  await fixtures.maxStakePerUser.sub(stakeAmount);
+        const userCapacity = await fixtures.COTStaking.getRemainingUserStakeCapacity(fixtures.user.address);
+        
+        expect (userCapacity).to.equal(expectedUserCapacity);
+    
+      });
   });
 
   describe("PendingReward", function () {
@@ -108,12 +131,43 @@ describe("COTStakingInitializable", function () {
       for (let i = 0; i < blockToAdvance; i++) {
         await network.provider.send("evm_mine");
       }
-    
 
       const pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
       expect(pendingRewards).to.be.equal(expectedReward);
-
+      
+    
     });
+
+    it("should not increase rewards after pool ends", async function () {
+
+      // stake tokens
+      const amountToStake = ethers.utils.parseEther("250");
+      await fixtures.stakedToken.approve(fixtures.COTStaking.address, amountToStake);
+      await fixtures.COTStaking.connect(fixtures.user).stake(amountToStake);
+
+      // compute last reward block
+      const poolRewardEndBlock = await fixtures.COTStaking.poolRewardEndBlock();
+
+      // get current block 
+      const currentBlockNumber = await ethers.provider.getBlockNumber();
+
+      // compute rewards after pool ends
+      const diffBlocks = poolRewardEndBlock.sub(currentBlockNumber);
+      const expectedReward = amountToStake.mul(fixtures.rewardRate).mul(diffBlocks).div(fixtures.poolDuration).div(100);
+
+      for (let i = 0; i < diffBlocks+5; i++) {
+        await network.provider.send("evm_mine");
+      }
+
+      const pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
+      expect(pendingRewards).to.be.equal(expectedReward);
+      
+    
+    });
+
+    
+  
+      
   });
 
   describe("Unstake", function () {
@@ -283,6 +337,29 @@ describe("COTStakingInitializable", function () {
       
       
   });
+
+  describe("Negative tests", function () {
+    // Stake negative test cases
+    it("should revert when staking more tokens than the user's allowance", async () => {
+      const stakeAmount = ethers.utils.parseEther("2000");
+      await fixtures.stakedToken.approve(fixtures.COTStaking.address, stakeAmount);
+      await expect(fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount)).to.be.revertedWith("ERC20: insufficient allowance");
+    });
+  
+    it("should revert when staking more tokens than the user's remaining stake capacity", async () => {
+      const stakeAmount = ethers.utils.parseEther("5000");
+      await fixtures.stakedToken.connect(fixtures.user).approve(fixtures.COTStaking.address, stakeAmount);
+      await expect(fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount)).to.be.revertedWith("COTStaking: Stake exceeds remaining user capacity");
+    });
+  
+    it("should revert when staking 0 tokens", async () => {
+      const stakeAmount = ethers.utils.parseEther("0");
+      await expect(fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount)).to.be.revertedWith("COTStaking: Amount must be greater than zero");
+    });
+  
+
+  });
+  
 
   
   

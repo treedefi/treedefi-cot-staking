@@ -11,9 +11,13 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-/** @title COT Staking Contract
-/* @notice A contract for staking COT tokens and earning rewards.
-/* @author Hashdev LTD
+/** @title COT Staking contract
+ * @dev This contract uses a linear staking mechanism, 
+ * @dev the amount of rewards earned by a user is proportional to the amount of tokens they have staked and the duration of their stake. 
+ * @dev The contract calculates rewards using a formula that takes into account the stake amount, the reward rate, and the duration of the stake in blocks.
+ * @notice This linear staking mechanism means that the longer a user stakes their tokens, the more rewards they will earn, 
+ * @notice  as long as they stake for at least the minimum locking time required by the contract and less than maximum allowed per each user.
+ * @author Hashdev LTD
 */ 
 
 contract COTStakingInitializable is Ownable, ReentrancyGuard {
@@ -25,6 +29,8 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
     uint256 public rewardRate; // reward rate in percentage 
     uint256 public minStackingLockTime; // minimum locking time in blocks
     uint256 public poolDuration; // pool duration in blocks
+    uint256 public poolRewardEndBlock; // end block of the pool
+    uint256 public maxStakePerUser; // maximum stake amount per user
 
     uint256 private _totalStaked;
     uint256 private _lastBlockReward;
@@ -56,26 +62,39 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         uint256 poolSize_,
         uint256 rewardRate_,
         uint256 minStackingLockTime_,
-        uint256 poolDuration_
+        uint256 poolDuration_,
+        uint256 maxStakePerUser_
     ) external onlyOwner {
+        require(cotToken_ != address(0), "COTStaking: COT token address must not be zero");
+        require(poolSize_ > 0, "COTStaking: Pool size must be greater than zero");
+        require(rewardRate_ > 0 && rewardRate_ < 100, "COTStaking: Reward rate must be greater than zero and less than 100");
+        require(minStackingLockTime_ > 0, "COTStaking: Minimum stacking lock time must be greater than zero");
+        require(poolDuration_ > minStackingLockTime_, "COTStaking: Pool duration must be greater than the minimum stacking lock time");
+        require(maxStakePerUser_ > 0, "COTStaking: Maximum stake per user must be greater than zero");
+        require(maxStakePerUser_ <= poolSize_, "COTStaking: Maximum stake per user must be less than or equal to the pool size");
+
         cotToken = IERC20Metadata(cotToken_);
         poolSize = poolSize_;
         rewardRate = rewardRate_;
         minStackingLockTime = minStackingLockTime_;
         poolDuration = poolDuration_;
+        maxStakePerUser = maxStakePerUser_;
+        poolRewardEndBlock = block.number.add(poolDuration_);
     }
 
     /**
      * @notice Stakes a specified amount of COT tokens or increases an existing stake.
      * @dev If the user has an existing stake, the function updates the staked amount, endBlock, and earnedRewards.
-     * If the user doesn't have an existing stake, a new stake is created.
+     * If the user doesn't have an existing stake, a new stake is created
      * @param amount The amount of COT tokens to stake.
      */
     function stake(uint256 amount) external nonReentrant {
         require(amount > 0, "COTStaking: Amount must be greater than zero");
         require(_totalStaked.add(amount) <= poolSize, "COTStaking: Pool size limit reached");
+        require (block.number < poolRewardEndBlock, "COTStaking: This pool is finished");
 
         Stake storage stake_ = _stakes[msg.sender];
+        require(stake_.amount.add(amount) < maxStakePerUser, "COTStaking: Stake exceeds remaining user capacity");
 
         // If the user has an existing stake, update the staked amount and endBlock
         if (stake_.amount > 0) {
@@ -113,8 +132,8 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         require(block.number >= stake_.startBlock.add(minStackingLockTime), "COTStaking: Minimum staking lock time not reached");
 
         uint256 userRewards = userPendingRewards(msg.sender).add(stake_.earnedRewards); // Add the earnedRewards to the user's pending rewards
-
         cotToken.safeTransfer(msg.sender, stake_.amount.add(userRewards));
+        emit Unstaked(msg.sender, stake_.amount);
 
         _totalStaked = _totalStaked.sub(stake_.amount);
 
@@ -124,7 +143,6 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         stake_.endBlock = 0;
         stake_.earnedRewards = 0;
 
-        emit Unstaked(msg.sender, stake_.amount);
         emit RewardClaimed(msg.sender, userRewards);
     }
 
@@ -149,6 +167,16 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
     }
 
     /**
+     * @notice Returns the remaining user capacity to stake
+     * @param user The address of the user.
+     * @return The user's remaining capacity amount
+     */
+
+    function getRemainingUserStakeCapacity(address user) external view returns (uint256) {
+        return maxStakePerUser.sub(_stakes[user].amount);
+    }
+
+    /**
      * @notice Returns COT balance of this contract
      */
 
@@ -160,22 +188,29 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
      * @notice Calculate the pending rewards for a user.
      * @param user The address of the user to query the rewards for.
      * @return pendingRewards The pending rewards for the specified user.
-     * @dev TODO: Update the stake 
      */
 
     function userPendingRewards(address user) public view returns (uint256 pendingRewards) {
     Stake storage stake_ = _stakes[user];
 
     if (stake_.amount > 0) {
-       
-        uint256 blockPassed = block.number.sub(stake_.startBlock);
-        // convert user reward to 100
+        uint256 blockPassed;
+
+        // Check if the current block number is greater than the poolRewardEndBlock
+        if (block.number >= poolRewardEndBlock) {
+            uint256 effectiveEndBlock = (stake_.startBlock.add(poolDuration) > poolRewardEndBlock) ? poolRewardEndBlock : stake_.startBlock.add(poolDuration);
+            blockPassed = effectiveEndBlock.sub(stake_.startBlock);
+        } else {
+            blockPassed = block.number.sub(stake_.startBlock);
+        }
+
+        // Divide userRewards by 100 because rewardRate is a percentage
         uint256 userRewards = blockPassed.mul(rewardRate).mul(stake_.amount).div(poolDuration).div(100);
         pendingRewards = userRewards;
-
     }
     return pendingRewards;
 }
+
 
 
 
