@@ -81,7 +81,7 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         require(_totalStaked.add(amount) <= poolSize, "COTStaking: Pool size limit reached");
 
         Stake storage stake_ = _stakes[msg.sender];
-        require(stake_.amount.add(amount) < maxStakePerUser, "COTStaking: Max stake per user reached");
+        require(stake_.amount.add(amount) < maxStakePerUser, "COTStaking: Stake exceeds remaining user capacity");
 
         // If the user has an existing stake, update the staked amount and endBlock
         if (stake_.amount > 0) {

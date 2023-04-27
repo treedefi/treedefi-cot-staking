@@ -14,7 +14,7 @@ async function setup() {
   const COTStaking = await COTStakingInitializable.deploy();
 
   // Initialize the staking contract
-  const poolSize = ethers.utils.parseEther("1000");
+  const poolSize = ethers.utils.parseEther("10000");
   const rewardRate = 10;
   const minStackingLockTime = 100;
   const poolDuration = 200;
@@ -337,6 +337,29 @@ describe("COTStakingInitializable", function () {
       
       
   });
+
+  describe("Negative tests", function () {
+    // Stake negative test cases
+    it("should revert when staking more tokens than the user's allowance", async () => {
+      const stakeAmount = ethers.utils.parseEther("2000");
+      await fixtures.stakedToken.approve(fixtures.COTStaking.address, stakeAmount);
+      await expect(fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount)).to.be.revertedWith("ERC20: insufficient allowance");
+    });
+  
+    it("should revert when staking more tokens than the user's remaining stake capacity", async () => {
+      const stakeAmount = ethers.utils.parseEther("5000");
+      await fixtures.stakedToken.connect(fixtures.user).approve(fixtures.COTStaking.address, stakeAmount);
+      await expect(fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount)).to.be.revertedWith("COTStaking: Stake exceeds remaining user capacity");
+    });
+  
+    it("should revert when staking 0 tokens", async () => {
+      const stakeAmount = ethers.utils.parseEther("0");
+      await expect(fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount)).to.be.revertedWith("COTStaking: Amount must be greater than zero");
+    });
+  
+
+  });
+  
 
   
   
