@@ -19,9 +19,6 @@ async function setup() {
   const COTStakingInitializable = await ethers.getContractFactory("COTStakingInitializable");
   const COTStaking = await COTStakingInitializable.deploy();
 
-  // Transfer 1000 reward tokens to the smart contract
-  await rewardToken.mint(COTStaking.address, ethers.utils.parseEther("1000"));
-
   // Initialize the staking contract
   const poolSize = ethers.utils.parseEther("1000");
   const rewardRate = 10;
