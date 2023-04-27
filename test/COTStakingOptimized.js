@@ -282,6 +282,8 @@ describe("COTStakingInitializable", function () {
         // user final balance of COT
         const userFinalBalance = await fixtures.stakedToken.balanceOf(fixtures.user.address);
         console.log('** HH ** Final balance: ' + userFinalBalance);
+        const diff = userFinalBalance.sub(userInitialBalance);
+        console.log('** HH ** Diff Balance ' + diff);
 
         
     });
