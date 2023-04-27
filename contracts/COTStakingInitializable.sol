@@ -25,7 +25,7 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
     uint256 public rewardRate; // reward rate in percentage 
     uint256 public minStackingLockTime; // minimum locking time in blocks
     uint256 public poolDuration; // pool duration in blocks
-    uint256 public rewardEndBlock; // end block of the pool
+    uint256 public poolRewardEndBlock; // end block of the pool
 
     uint256 private _totalStaked;
     uint256 private _lastBlockReward;
@@ -64,7 +64,7 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         rewardRate = rewardRate_;
         minStackingLockTime = minStackingLockTime_;
         poolDuration = poolDuration_;
-        rewardEndBlock = block.number + poolDuration;
+        poolRewardEndBlock = block.number.add(poolDuration);
     }
 
     /**
@@ -162,22 +162,29 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
      * @notice Calculate the pending rewards for a user.
      * @param user The address of the user to query the rewards for.
      * @return pendingRewards The pending rewards for the specified user.
-     * @dev TODO: Update the stake 
      */
 
     function userPendingRewards(address user) public view returns (uint256 pendingRewards) {
     Stake storage stake_ = _stakes[user];
 
     if (stake_.amount > 0) {
-       
-        uint256 blockPassed = block.number.sub(stake_.startBlock);
-        // divide userRewards by 100 because rewardRate it's a percentage
+        uint256 blockPassed;
+
+        // Check if the current block number is greater than the poolRewardEndBlock
+        if (block.number >= poolRewardEndBlock) {
+            uint256 effectiveEndBlock = (stake_.startBlock.add(poolDuration) > poolRewardEndBlock) ? poolRewardEndBlock : stake_.startBlock.add(poolDuration);
+            blockPassed = effectiveEndBlock.sub(stake_.startBlock);
+        } else {
+            blockPassed = block.number.sub(stake_.startBlock);
+        }
+
+        // Divide userRewards by 100 because rewardRate is a percentage
         uint256 userRewards = blockPassed.mul(rewardRate).mul(stake_.amount).div(poolDuration).div(100);
         pendingRewards = userRewards;
-
     }
     return pendingRewards;
 }
+
 
 
 
