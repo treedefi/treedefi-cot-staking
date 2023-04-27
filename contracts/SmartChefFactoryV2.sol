@@ -34,6 +34,7 @@ contract SmartChefFactory is Ownable {
         uint256 _bonusEndBlock,
         uint256 _poolLimitPerUser,
         uint256 _numberBlocksForUserLimit,
+        uint256 _lockDuration, 
         address _admin
     ) external onlyOwner {
         require(_stakedToken.totalSupply() >= 0);
@@ -60,6 +61,7 @@ contract SmartChefFactory is Ownable {
             _bonusEndBlock,
             _poolLimitPerUser,
             _numberBlocksForUserLimit,
+            _lockDuration,
             _admin
         );
 
