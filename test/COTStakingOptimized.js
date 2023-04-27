@@ -118,11 +118,19 @@ describe("COTStakingInitializable", function () {
 
       const pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
       expect(pendingRewards).to.be.equal(expectedReward);
+      console.log('** HH ** pending reward: ' + pendingRewards);
+
+      for (let i = 0; i < 300; i++) {
+        await network.provider.send("evm_mine");
+      }
+
+      const pendingRewardsAfterPoolEnds = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
+      console.log('** HH ** pending reward after pool ends: ' + pendingRewardsAfterPoolEnds);
 
       
 
     });
-    
+
     /* temp disabled
     it("should not increase the pending reward after the pool duration has finished", async function () {
         const amountToStake = ethers.utils.parseEther("10");
