@@ -65,6 +65,14 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         uint256 poolDuration_,
         uint256 maxStakePerUser_
     ) external onlyOwner {
+        require(cotToken_ != address(0), "COTStaking: COT token address must not be zero");
+        require(poolSize_ > 0, "COTStaking: Pool size must be greater than zero");
+        require(rewardRate_ > 0 && rewardRate_ < 100, "COTStaking: Reward rate must be greater than zero and less than 100");
+        require(minStackingLockTime_ > 0, "COTStaking: Minimum stacking lock time must be greater than zero");
+        require(poolDuration_ > minStackingLockTime_, "COTStaking: Pool duration must be greater than the minimum stacking lock time");
+        require(maxStakePerUser_ > 0, "COTStaking: Maximum stake per user must be greater than zero");
+        require(maxStakePerUser_ <= poolSize_, "COTStaking: Maximum stake per user must be less than or equal to the pool size");
+
         cotToken = IERC20Metadata(cotToken_);
         poolSize = poolSize_;
         rewardRate = rewardRate_;
