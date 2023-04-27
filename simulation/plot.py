@@ -1,58 +1,45 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Constants from the unit test file
-pool_size = 1000
-reward_rate = 10
-min_stacking_lock_time = 100
-pool_duration = 200
+# Parameters
+pool_duration = 1000  # Assuming poolDuration is 1000 blocks
+reward_rate = 10  # Assuming rewardRate is 10%
+stake_amount = 100  # Assuming the user stakes 100 tokens
 
-# Users data
-users = [
-    {
-        "address": "user1",
-        "balance": 1000,
-        "staked": 0,
-        "reward": 0,
-    },
-    {
-        "address": "user2",
-        "balance": 1000,
-        "staked": 0,
-        "reward": 0,
-    },
-]
+# Staking times
+T0 = 0
+T1 = 250
+T2 = 500
+T3 = 750
+T4 = pool_duration
 
-# Staking simulation
-stakes = []
+staking_times = [T0, T1, T2, T3]
+unstaking_time = T4
 
-for user in users:
-    stake_amount = user["balance"] // 2
-    user["staked"] += stake_amount
-    user["balance"] -= stake_amount
-    stakes.append({"user": user["address"], "staked": stake_amount})
+# Calculate rewards at each time interval
+rewards = []
+staked_amounts = []
 
-# Calculate pending rewards
-for stake in stakes:
-    user = next(filter(lambda u: u["address"] == stake["user"], users))
-    user["reward"] += stake["staked"] * reward_rate * pool_duration // 100
+total_staked = 0
+total_rewards = 0
 
-# Plot results
-fig, ax = plt.subplots()
-x = np.arange(len(users))
-width = 0.35
+time_range = np.arange(T0, T4 + 1)
 
-balance_rects = ax.bar(x - width / 2, [user["balance"] for user in users], width, label="Balance")
-staked_rects = ax.bar(x + width / 2, [user["staked"] for user in users], width, label="Staked")
+for t in time_range:
+    if t in staking_times:
+        total_staked += stake_amount
 
-ax.set_ylabel("Amount")
-ax.set_title("Staking Simulation")
-ax.set_xticks(x)
-ax.set_xticklabels([user["address"] for user in users])
-ax.legend()
+    block_passed = min(t, pool_duration)
+    user_rewards = block_passed * reward_rate * total_staked / pool_duration / 100
+    total_rewards = user_rewards
+    rewards.append(total_rewards)
+    staked_amounts.append(total_staked)
 
-ax.bar_label(balance_rects, padding=3)
-ax.bar_label(staked_rects, padding=3)
-
-fig.tight_layout()
+# Plot the staked amounts and rewards over time
+plt.figure()
+plt.plot(time_range, staked_amounts, label='Staked Amount', color='blue')
+plt.plot(time_range, rewards, label='Rewards', color='green')
+plt.xlabel('Time (block)')
+plt.ylabel('Amount')
+plt.legend()
 plt.show()
