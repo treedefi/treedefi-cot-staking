@@ -29,6 +29,7 @@ async function setup() {
 
   await stakedToken.transfer(user.address, ethers.utils.parseEther("1000"));
   await stakedToken.connect(user).approve(COTStaking.address, ethers.utils.parseEther("1000"));
+  const poolRewardEndBlock = await COTStaking.poolRewardEndBlock;
 
   return {
     owner,
@@ -39,6 +40,7 @@ async function setup() {
     rewardRate,
     minStackingLockTime,
     poolDuration,
+    poolRewardEndBlock
   };
 }
 
@@ -114,22 +116,43 @@ describe("COTStakingInitializable", function () {
       for (let i = 0; i < blockToAdvance; i++) {
         await network.provider.send("evm_mine");
       }
-    
 
       const pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
       expect(pendingRewards).to.be.equal(expectedReward);
-      console.log('** HH ** pending reward: ' + pendingRewards);
+      
+    
+    });
 
-      for (let i = 0; i < 300; i++) {
+    it("should not increase rewards after pool ends", async function () {
+
+      // stake tokens
+      const amountToStake = ethers.utils.parseEther("250");
+      await fixtures.stakedToken.approve(fixtures.COTStaking.address, amountToStake);
+      await fixtures.COTStaking.connect(fixtures.user).stake(amountToStake);
+
+      // compute last reward block
+      const poolRewardEndBlock = await fixtures.COTStaking.poolRewardEndBlock();
+
+      // get current block 
+      const currentBlockNumber = await ethers.provider.getBlockNumber();
+
+      // compute rewards after pool ends
+      const diffBlocks = poolRewardEndBlock.sub(currentBlockNumber);
+      const expectedReward = amountToStake.mul(fixtures.rewardRate).mul(diffBlocks).div(fixtures.poolDuration).div(100);
+      console.log('** HH ** remainng blocks ' + diffBlocks);
+
+
+      for (let i = 0; i < diffBlocks+5; i++) {
         await network.provider.send("evm_mine");
       }
 
-      const pendingRewardsAfterPoolEnds = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
-      console.log('** HH ** pending reward after pool ends: ' + pendingRewardsAfterPoolEnds);
-
+      const pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
+      expect(pendingRewards).to.be.equal(expectedReward);
       
-
+    
     });
+
+    
 
     /* temp disabled
     it("should not increase the pending reward after the pool duration has finished", async function () {
@@ -159,6 +182,8 @@ describe("COTStakingInitializable", function () {
         expect(pendingRewardsAfter).to.be.equal(expectedReward); // Expect the same reward as at the pool end block since the pool duration has finished
       });
       */
+
+      
       
       
   });
