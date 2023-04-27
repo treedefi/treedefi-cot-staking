@@ -50,13 +50,19 @@ describe("COTStakingInitializable", function () {
   });
 
   describe("Initialize", function () {
-    it("should initialize the smart contract correctly with parameters", async () => {
+    it("should initialize the smart contract correctly with given parameters", async () => {
+      const blockNumber = await ethers.provider.getBlockNumber();
+      const endBlock = fixtures.poolDuration + blockNumber;
+
       expect(await fixtures.COTStaking.cotToken()).to.equal(fixtures.stakedToken.address);
       expect(await fixtures.COTStaking.poolSize()).to.equal(fixtures.poolSize);
       expect(await fixtures.COTStaking.rewardRate()).to.equal(fixtures.rewardRate);
       expect(await fixtures.COTStaking.minStackingLockTime()).to.equal(fixtures.minStackingLockTime);
       expect(await fixtures.COTStaking.poolDuration()).to.equal(fixtures.poolDuration);
       expect(await fixtures.COTStaking.owner()).to.equal(fixtures.owner.address);
+      
+      // allow 2 blocks tolerance
+      expect(await fixtures.COTStaking.poolRewardEndBlock()).to.be.closeTo(endBlock,2);
 
     });
   });
@@ -113,7 +119,40 @@ describe("COTStakingInitializable", function () {
       const pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
       expect(pendingRewards).to.be.equal(expectedReward);
 
+      
+
     });
+    
+    /* temp disabled
+    it("should not increase the pending reward after the pool duration has finished", async function () {
+        const amountToStake = ethers.utils.parseEther("10");
+      
+        await fixtures.stakedToken.approve(fixtures.COTStaking.address, amountToStake);
+        await fixtures.COTStaking.connect(fixtures.user).stake(amountToStake);
+      
+        const blockToAdvance = fixtures.poolDuration;
+      
+        for (let i = 0; i < blockToAdvance; i++) {
+          await network.provider.send("evm_mine");
+        }
+      
+        const expectedReward = amountToStake.mul(fixtures.rewardRate).mul(blockToAdvance).div(fixtures.poolDuration).div(100);
+      
+        const pendingRewardsAtPoolEnd = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
+        expect(pendingRewardsAtPoolEnd).to.be.equal(expectedReward);
+      
+        // Advance some more blocks after the pool duration is finished
+        const additionalBlockToAdvance = 10;
+        for (let i = 0; i < additionalBlockToAdvance; i++) {
+          await network.provider.send("evm_mine");
+        }
+      
+        const pendingRewardsAfter = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
+        expect(pendingRewardsAfter).to.be.equal(expectedReward); // Expect the same reward as at the pool end block since the pool duration has finished
+      });
+      */
+      
+      
   });
 
   describe("Unstake", function () {
