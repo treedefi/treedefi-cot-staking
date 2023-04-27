@@ -18,13 +18,15 @@ async function setup() {
   const rewardRate = 10;
   const minStackingLockTime = 100;
   const poolDuration = 200;
+  const maxStakePerUser = ethers.utils.parseEther("5000");
 
   await COTStaking.initialize(
     stakedToken.address,
     poolSize,
     rewardRate,
     minStackingLockTime,
-    poolDuration
+    poolDuration,
+    maxStakePerUser,
   );
 
   await stakedToken.transfer(user.address, ethers.utils.parseEther("1000"));
@@ -40,7 +42,8 @@ async function setup() {
     rewardRate,
     minStackingLockTime,
     poolDuration,
-    poolRewardEndBlock
+    poolRewardEndBlock,
+    maxStakePerUser
   };
 }
 
@@ -61,6 +64,7 @@ describe("COTStakingInitializable", function () {
       expect(await fixtures.COTStaking.rewardRate()).to.equal(fixtures.rewardRate);
       expect(await fixtures.COTStaking.minStackingLockTime()).to.equal(fixtures.minStackingLockTime);
       expect(await fixtures.COTStaking.poolDuration()).to.equal(fixtures.poolDuration);
+      expect(await fixtures.COTStaking.maxStakePerUser()).to.equal(fixtures.maxStakePerUser);
       expect(await fixtures.COTStaking.owner()).to.equal(fixtures.owner.address);
       
       // allow 2 blocks tolerance
@@ -139,8 +143,6 @@ describe("COTStakingInitializable", function () {
       // compute rewards after pool ends
       const diffBlocks = poolRewardEndBlock.sub(currentBlockNumber);
       const expectedReward = amountToStake.mul(fixtures.rewardRate).mul(diffBlocks).div(fixtures.poolDuration).div(100);
-      console.log('** HH ** remainng blocks ' + diffBlocks);
-
 
       for (let i = 0; i < diffBlocks+5; i++) {
         await network.provider.send("evm_mine");

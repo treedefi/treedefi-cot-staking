@@ -26,6 +26,7 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
     uint256 public minStackingLockTime; // minimum locking time in blocks
     uint256 public poolDuration; // pool duration in blocks
     uint256 public poolRewardEndBlock; // end block of the pool
+    uint256 public maxStakePerUser; // maximum stake amount per user
 
     uint256 private _totalStaked;
     uint256 private _lastBlockReward;
@@ -57,14 +58,16 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         uint256 poolSize_,
         uint256 rewardRate_,
         uint256 minStackingLockTime_,
-        uint256 poolDuration_
+        uint256 poolDuration_,
+        uint256 maxStakePerUser_
     ) external onlyOwner {
         cotToken = IERC20Metadata(cotToken_);
         poolSize = poolSize_;
         rewardRate = rewardRate_;
         minStackingLockTime = minStackingLockTime_;
         poolDuration = poolDuration_;
-        poolRewardEndBlock = block.number.add(poolDuration);
+        maxStakePerUser = maxStakePerUser_;
+        poolRewardEndBlock = block.number.add(poolDuration_);
     }
 
     /**
@@ -78,6 +81,7 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         require(_totalStaked.add(amount) <= poolSize, "COTStaking: Pool size limit reached");
 
         Stake storage stake_ = _stakes[msg.sender];
+        require(stake_.amount.add(amount) < maxStakePerUser, "COTStaking: Max stake per user reached");
 
         // If the user has an existing stake, update the staked amount and endBlock
         if (stake_.amount > 0) {
