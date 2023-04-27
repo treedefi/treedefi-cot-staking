@@ -15,7 +15,8 @@ import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
  * @dev This contract uses a linear staking mechanism, 
  * @dev the amount of rewards earned by a user is proportional to the amount of tokens they have staked and the duration of their stake. 
  * @dev The contract calculates rewards using a formula that takes into account the stake amount, the reward rate, and the duration of the stake in blocks.
- * @notice A contract for staking COT tokens and earning rewards.
+ * @notice This linear staking mechanism means that the longer a user stakes their tokens, the more rewards they will earn, 
+ * @notice  as long as they stake for at least the minimum locking time required by the contract and less than maximum allowed per each user.
 * @author Hashdev LTD
 */ 
 
