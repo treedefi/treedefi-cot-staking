@@ -17,7 +17,7 @@ import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
  * @dev The contract calculates rewards using a formula that takes into account the stake amount, the reward rate, and the duration of the stake in blocks.
  * @notice This linear staking mechanism means that the longer a user stakes their tokens, the more rewards they will earn, 
  * @notice  as long as they stake for at least the minimum locking time required by the contract and less than maximum allowed per each user.
-* @author Hashdev LTD
+ * @author Hashdev LTD
 */ 
 
 contract COTStakingInitializable is Ownable, ReentrancyGuard {
@@ -83,7 +83,7 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
     function stake(uint256 amount) external nonReentrant {
         require(amount > 0, "COTStaking: Amount must be greater than zero");
         require(_totalStaked.add(amount) <= poolSize, "COTStaking: Pool size limit reached");
-        require (block.number < poolRewardEndBlock, "COTStaking: This pool is finishde");
+        require (block.number < poolRewardEndBlock, "COTStaking: This pool is finished");
 
         Stake storage stake_ = _stakes[msg.sender];
         require(stake_.amount.add(amount) < maxStakePerUser, "COTStaking: Stake exceeds remaining user capacity");
@@ -124,8 +124,8 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         require(block.number >= stake_.startBlock.add(minStackingLockTime), "COTStaking: Minimum staking lock time not reached");
 
         uint256 userRewards = userPendingRewards(msg.sender).add(stake_.earnedRewards); // Add the earnedRewards to the user's pending rewards
-
         cotToken.safeTransfer(msg.sender, stake_.amount.add(userRewards));
+        emit Unstaked(msg.sender, stake_.amount);
 
         _totalStaked = _totalStaked.sub(stake_.amount);
 
@@ -135,7 +135,6 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         stake_.endBlock = 0;
         stake_.earnedRewards = 0;
 
-        emit Unstaked(msg.sender, stake_.amount);
         emit RewardClaimed(msg.sender, userRewards);
     }
 
