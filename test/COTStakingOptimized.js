@@ -42,20 +42,6 @@ async function setup() {
   };
 }
 
-    /* HELPER FUNCTIONS 
-    * This functions are exstensively used in the code
-    * 
-    */
-async function advanceBlocks(blockCount) {
-    for (let i = 0; i < blockCount; i++) {
-      await network.provider.send("evm_mine");
-    }
-  }
-  
-  function calculateExpectedReward(stakeAmount, rewardRate, blockCount, poolDuration) {
-    return stakeAmount.mul(rewardRate).mul(blockCount).div(poolDuration).div(100);
-  }
-
 describe("COTStakingInitializable", function () {
   let fixtures;
 
@@ -118,11 +104,11 @@ describe("COTStakingInitializable", function () {
 
       const blockToAdvance = 5;
       const expectedReward = amountToStake.mul(fixtures.rewardRate).mul(blockToAdvance).div(fixtures.poolDuration).div(100);
-    
+
       for (let i = 0; i < blockToAdvance; i++) {
         await network.provider.send("evm_mine");
       }
-      
+    
 
       const pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
       expect(pendingRewards).to.be.equal(expectedReward);
