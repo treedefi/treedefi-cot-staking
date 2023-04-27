@@ -1,9 +1,9 @@
-import matplotlib.pyplot as plt
 import numpy as np
+import plotly.graph_objects as go
 
 # Parameters
 pool_duration = 1000  # Assuming poolDuration is 1000 blocks
-reward_rate = 10  # Assuming rewardRate is 10%
+reward_rate = 20  # Assuming rewardRate is 20%
 stake_amount = 100  # Assuming the user stakes 100 tokens
 
 # Staking times
@@ -35,11 +35,26 @@ for t in time_range:
     rewards.append(total_rewards)
     staked_amounts.append(total_staked)
 
-# Plot the staked amounts and rewards over time
-plt.figure()
-plt.plot(time_range, staked_amounts, label='Staked Amount', color='blue')
-plt.plot(time_range, rewards, label='Rewards', color='green')
-plt.xlabel('Time (block)')
-plt.ylabel('Amount')
-plt.legend()
-plt.show()
+# Create an interactive plot using Plotly
+fig = go.Figure()
+
+fig.add_trace(go.Scatter(x=time_range, y=staked_amounts, name='Staked Amount', line=dict(color='blue')))
+fig.add_trace(go.Scatter(x=time_range, y=rewards, name='Rewards', line=dict(color='green')))
+
+fig.update_layout(
+    title="Staking and Rewards Growth",
+    xaxis_title="Time (block)",
+    yaxis_title="Amount",
+    legend_title="Legend",
+)
+
+# Add annotations for the parameters
+annotations = [
+    dict(xref='paper', yref='paper', x=1, y=1.08, xanchor='right', yanchor='bottom',
+         text=f'Pool Duration: {pool_duration} blocks, Reward Rate: {reward_rate}',
+         showarrow=False, font=dict(size=14))
+]
+
+fig.update_layout(annotations=annotations, margin=dict(t=100))
+
+fig.show()
