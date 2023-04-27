@@ -3,17 +3,11 @@ const { expect } = require("chai");
 
 async function setup() {
   const [owner, user] = await ethers.getSigners();
-
-  const RewardToken = await ethers.getContractFactory("ERC20Mock");
-  const rewardToken = await RewardToken.deploy("Reward Token", "RWD");
-
   const StakedToken = await ethers.getContractFactory("ERC20Mock");
   const stakedToken = await StakedToken.deploy("Staked Token", "STK");
 
   // Mint 1000 tokens each to the owner and user accounts
-  await rewardToken.mint(owner.address, ethers.utils.parseEther("1000"));
   await stakedToken.mint(owner.address, ethers.utils.parseEther("1000"));
-  await rewardToken.mint(user.address, ethers.utils.parseEther("1000"));
   await stakedToken.mint(user.address, ethers.utils.parseEther("1000"));
 
   const COTStakingInitializable = await ethers.getContractFactory("COTStakingInitializable");
@@ -39,7 +33,6 @@ async function setup() {
   return {
     owner,
     user,
-    rewardToken,
     stakedToken,
     COTStaking,
     poolSize,
