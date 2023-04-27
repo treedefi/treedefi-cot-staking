@@ -105,6 +105,17 @@ describe("COTStakingInitializable", function () {
         const COTStakingBalance = await fixtures.stakedToken.balanceOf(fixtures.COTStaking.address);
         expect(COTStakingBalance).to.equal(stakeAmount);
       });
+
+      it("should correctly compute the user stake capacity", async () => {
+        const stakeAmount = ethers.utils.parseEther("500");
+        await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount);
+    
+        const expectedUserCapacity =  await fixtures.maxStakePerUser.sub(stakeAmount);
+        const userCapacity = await fixtures.COTStaking.getRemainingUserStakeCapacity(fixtures.user.address);
+        
+        expect (userCapacity).to.equal(expectedUserCapacity);
+    
+      });
   });
 
   describe("PendingReward", function () {
@@ -155,38 +166,7 @@ describe("COTStakingInitializable", function () {
     });
 
     
-
-    /* temp disabled
-    it("should not increase the pending reward after the pool duration has finished", async function () {
-        const amountToStake = ethers.utils.parseEther("10");
-      
-        await fixtures.stakedToken.approve(fixtures.COTStaking.address, amountToStake);
-        await fixtures.COTStaking.connect(fixtures.user).stake(amountToStake);
-      
-        const blockToAdvance = fixtures.poolDuration;
-      
-        for (let i = 0; i < blockToAdvance; i++) {
-          await network.provider.send("evm_mine");
-        }
-      
-        const expectedReward = amountToStake.mul(fixtures.rewardRate).mul(blockToAdvance).div(fixtures.poolDuration).div(100);
-      
-        const pendingRewardsAtPoolEnd = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
-        expect(pendingRewardsAtPoolEnd).to.be.equal(expectedReward);
-      
-        // Advance some more blocks after the pool duration is finished
-        const additionalBlockToAdvance = 10;
-        for (let i = 0; i < additionalBlockToAdvance; i++) {
-          await network.provider.send("evm_mine");
-        }
-      
-        const pendingRewardsAfter = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
-        expect(pendingRewardsAfter).to.be.equal(expectedReward); // Expect the same reward as at the pool end block since the pool duration has finished
-      });
-      */
-
-      
-      
+  
       
   });
 

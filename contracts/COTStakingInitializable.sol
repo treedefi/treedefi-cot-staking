@@ -155,6 +155,16 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
     }
 
     /**
+     * @notice Returns the remaining user capacity to stake
+     * @param user The address of the user.
+     * @return The user's remaining capacity amount
+     */
+
+    function getRemainingUserStakeCapacity(address user) external view returns (uint256) {
+        return maxStakePerUser.sub(_stakes[user].amount);
+    }
+
+    /**
      * @notice Returns COT balance of this contract
      */
 
