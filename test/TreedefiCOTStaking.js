@@ -7,8 +7,8 @@ async function setup() {
   const stakedToken = await StakedToken.deploy("Staked Token", "STK");
 
   // Mint 1000 tokens each to the owner and user accounts
-  await stakedToken.mint(owner.address, ethers.utils.parseEther("1000"));
-  await stakedToken.mint(user.address, ethers.utils.parseEther("1000"));
+  await stakedToken.mint(owner.address, ethers.utils.parseEther("10000"));
+  await stakedToken.mint(user.address, ethers.utils.parseEther("10000"));
 
   const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStaking");
   const COTStaking = await COTStakingInitializable.deploy();
@@ -502,6 +502,72 @@ describe("Treedefi COT Staking - Tests ", function () {
     });
 
 
+    it("should revert when the staking amount exceeds the pool size", async () => {
+
+      const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStaking");
+      const COTStaking = await COTStakingInitializable.deploy();
+
+      // Initialize the staking contract
+      const poolSize = ethers.utils.parseEther("4000");
+      const rewardRate = 10;
+      const minStackingLockTime = 100;
+      const poolDuration = 200;
+      const maxStakePerUser = ethers.utils.parseEther("3000");
+
+      await (COTStaking.initialize(
+        fixtures.stakedToken.address,
+        poolSize,
+        rewardRate,
+        minStackingLockTime,
+        poolDuration,
+        maxStakePerUser,
+      ))
+
+      const stakeAmount = ethers.utils.parseEther("2500");
+      await fixtures.stakedToken.connect(fixtures.owner).approve(COTStaking.address, stakeAmount);
+      await fixtures.stakedToken.connect(fixtures.user).approve(COTStaking.address, stakeAmount);
+      
+      // owner will stake 
+      await COTStaking.connect(fixtures.owner).stake(stakeAmount);
+
+      // user will stake and get the error
+      await expect(COTStaking.connect(fixtures.user).stake(stakeAmount))
+          .to.be.revertedWith("COTStaking: Pool size limit reached");
+    });
+
+    it("should revert when staking after the pool has ended", async () => {
+      const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStaking");
+      const COTStaking = await COTStakingInitializable.deploy();
+  
+      // Initialize the staking contract
+      const poolSize = ethers.utils.parseEther("4000");
+      const rewardRate = 10;
+      const minStackingLockTime = 100;
+      const poolDuration = 200;
+      const maxStakePerUser = ethers.utils.parseEther("3000");
+  
+      await (COTStaking.initialize(
+          fixtures.stakedToken.address,
+          poolSize,
+          rewardRate,
+          minStackingLockTime,
+          poolDuration,
+          maxStakePerUser,
+      ))
+  
+      const stakeAmount = ethers.utils.parseEther("2500");
+      await fixtures.stakedToken.connect(fixtures.owner).approve(COTStaking.address, stakeAmount);
+  
+      // Fast-forward to after the pool end block
+      const blocksToAdvance = poolDuration + 1;
+      for (let i = 0; i < blocksToAdvance; i++) {
+          await network.provider.send("evm_mine");
+      }
+  
+      // Attempt to stake after the pool has ended
+      await expect(COTStaking.connect(fixtures.owner).stake(stakeAmount))
+          .to.be.revertedWith("COTStaking: This pool is finished");
+  });
   
 
   });
