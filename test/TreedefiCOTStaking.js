@@ -535,6 +535,44 @@ describe("Treedefi COT Staking - Tests ", function () {
           .to.be.revertedWith("COTStaking: Pool size limit reached");
     });
 
+    it('should fail if max stake per user is zero', async function() {
+      const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStaking");
+      const COTStaking = await COTStakingInitializable.deploy();
+      const poolSize = ethers.utils.parseEther("10000");
+      const rewardRate = 10;
+      const minStackingLockTime = 100;
+      const poolDuration = 200;
+      const maxStakePerUser = ethers.utils.parseEther("0");
+    
+      await expect(COTStaking.initialize(
+        fixtures.stakedToken.address,
+        poolSize,
+        rewardRate,
+        minStackingLockTime,
+        poolDuration,
+        maxStakePerUser,
+      )).to.be.revertedWith('COTStaking: Maximum stake per user must be greater than zero');
+    });
+
+    it('should fail if max stake per user is greater than pool size', async function() {
+      const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStaking");
+      const COTStaking = await COTStakingInitializable.deploy();
+      const poolSize = ethers.utils.parseEther("10000");
+      const rewardRate = 10;
+      const minStackingLockTime = 100;
+      const poolDuration = 200;
+      const maxStakePerUser = ethers.utils.parseEther("20000");
+    
+      await expect(COTStaking.initialize(
+        fixtures.stakedToken.address,
+        poolSize,
+        rewardRate,
+        minStackingLockTime,
+        poolDuration,
+        maxStakePerUser,
+      )).to.be.revertedWith('COTStaking: Maximum stake per user must be less than or equal to the pool size');
+    });
+
     it("should revert when staking after the pool has ended", async () => {
       const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStaking");
       const COTStaking = await COTStakingInitializable.deploy();
@@ -568,6 +606,8 @@ describe("Treedefi COT Staking - Tests ", function () {
       await expect(COTStaking.connect(fixtures.owner).stake(stakeAmount))
           .to.be.revertedWith("COTStaking: This pool is finished");
   });
+
+
   
 
   });
