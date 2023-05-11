@@ -23,10 +23,8 @@ contract TreedefiStakingFactory is Ownable {
         uint256 _rewardRate,
         uint256 _minStackingLockTime,
         uint256 _poolDuration,
-        uint256 _poolRewardEndBlock,
         uint256 _maxStakePerUser
     ) external onlyOwner {
-        require(_cotToken.totalSupply() >= 0);
         require(_cotToken.totalSupply() >= 0);
 
         bytes memory bytecode = type(TreedefiCOTStaking).creationCode;
@@ -34,7 +32,7 @@ contract TreedefiStakingFactory is Ownable {
         bytecode = abi.encodePacked(
             bytecode
         );
-        bytes32 salt = keccak256(abi.encodePacked(address(_cotToken), _maxStakePerUser, _poolRewardEndBlock));
+        bytes32 salt = keccak256(abi.encodePacked(address(_cotToken), _maxStakePerUser, _poolDuration));
         address cotStakingAddress;
 
         assembly {
