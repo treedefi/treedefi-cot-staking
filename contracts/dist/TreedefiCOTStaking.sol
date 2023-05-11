@@ -1,5 +1,6 @@
+// TreedefiCOTStaking.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.17;
 pragma abicoder v2;
 import "hardhat/console.sol";
 
@@ -20,7 +21,7 @@ import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
  * @author Hashdev LTD
 */ 
 
-contract COTStakingInitializable is Ownable, ReentrancyGuard {
+contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20Metadata;
     using SafeMath for uint256;
 
@@ -29,11 +30,13 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
     uint256 public rewardRate; // reward rate in percentage 
     uint256 public minStackingLockTime; // minimum locking time in blocks
     uint256 public poolDuration; // pool duration in blocks
-    uint256 public poolRewardEndBlock; // end block of the pool
     uint256 public maxStakePerUser; // maximum stake amount per user
 
+    uint256 public poolRewardEndBlock; // end block of the pool
     uint256 private _totalStaked;
     uint256 private _lastBlockReward;
+
+    bool private initialized = false;
 
     struct Stake {
         uint256 amount;
@@ -65,6 +68,7 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         uint256 poolDuration_,
         uint256 maxStakePerUser_
     ) external onlyOwner {
+        require(!initialized, "COTStaking: already initialized");
         require(cotToken_ != address(0), "COTStaking: COT token address must not be zero");
         require(poolSize_ > 0, "COTStaking: Pool size must be greater than zero");
         require(rewardRate_ > 0 && rewardRate_ < 100, "COTStaking: Reward rate must be greater than zero and less than 100");
@@ -79,13 +83,15 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
         minStackingLockTime = minStackingLockTime_;
         poolDuration = poolDuration_;
         maxStakePerUser = maxStakePerUser_;
+
         poolRewardEndBlock = block.number.add(poolDuration_);
+        initialized = true;
     }
 
     /**
      * @notice Stakes a specified amount of COT tokens or increases an existing stake.
      * @dev If the user has an existing stake, the function updates the staked amount, endBlock, and earnedRewards.
-     * If the user doesn't have an existing stake, a new stake is created
+     * @dev If the user doesn't have an existing stake, a new stake is created
      * @param amount The amount of COT tokens to stake.
      */
     function stake(uint256 amount) external nonReentrant {
@@ -174,14 +180,6 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
 
     function getRemainingUserStakeCapacity(address user) external view returns (uint256) {
         return maxStakePerUser.sub(_stakes[user].amount);
-    }
-
-    /**
-     * @notice Returns COT balance of this contract
-     */
-
-    function getCOTBalance() public view returns (uint256) {
-        return cotToken.balanceOf(address(this));
     }
 
     /**

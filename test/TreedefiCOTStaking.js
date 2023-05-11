@@ -7,10 +7,10 @@ async function setup() {
   const stakedToken = await StakedToken.deploy("Staked Token", "STK");
 
   // Mint 1000 tokens each to the owner and user accounts
-  await stakedToken.mint(owner.address, ethers.utils.parseEther("1000"));
-  await stakedToken.mint(user.address, ethers.utils.parseEther("1000"));
+  await stakedToken.mint(owner.address, ethers.utils.parseEther("10000"));
+  await stakedToken.mint(user.address, ethers.utils.parseEther("10000"));
 
-  const COTStakingInitializable = await ethers.getContractFactory("COTStakingInitializable");
+  const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStaking");
   const COTStaking = await COTStakingInitializable.deploy();
 
   // Initialize the staking contract
@@ -37,6 +37,7 @@ async function setup() {
     owner,
     user,
     stakedToken,
+    COTStakingInitializable,
     COTStaking,
     poolSize,
     rewardRate,
@@ -47,7 +48,7 @@ async function setup() {
   };
 }
 
-describe("COTStakingInitializable", function () {
+describe("Treedefi COT Staking - Tests ", function () {
   let fixtures;
 
   beforeEach(async () => {
@@ -332,6 +333,22 @@ describe("COTStakingInitializable", function () {
 
         
     });
+
+    it("should correctly calculate the remaining stake capacity", async () => {
+      // Stake some amount of tokens
+      const stakeAmount = ethers.utils.parseEther("500");
+      await fixtures.stakedToken.approve(fixtures.COTStaking.address, stakeAmount);
+      await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount);
+  
+      // Calculate the expected remaining stake capacity
+      const expectedRemainingStakeCapacity = fixtures.poolSize.sub(stakeAmount);
+  
+      // Call the function and get the actual remaining stake capacity
+      const actualRemainingStakeCapacity = await fixtures.COTStaking.getRemainingStakeCapacity();
+  
+      // Check if the expected and actual values match
+      expect(actualRemainingStakeCapacity).to.equal(expectedRemainingStakeCapacity);
+    });
     
       
       
@@ -356,6 +373,241 @@ describe("COTStakingInitializable", function () {
       const stakeAmount = ethers.utils.parseEther("0");
       await expect(fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount)).to.be.revertedWith("COTStaking: Amount must be greater than zero");
     });
+
+    it('should revert if initialized again', async function() {
+
+      // Initialize the staking contract
+      const poolSize = ethers.utils.parseEther("10000");
+      const rewardRate = 10;
+      const minStackingLockTime = 100;
+      const poolDuration = 200;
+      const maxStakePerUser = ethers.utils.parseEther("5000");
+
+      await expect(fixtures.COTStaking.initialize(
+        ethers.constants.AddressZero,
+        poolSize,
+        rewardRate,
+        minStackingLockTime,
+        poolDuration,
+        maxStakePerUser,
+      )).to.be.revertedWith('COTStaking: already initialized');
+
+  
+    });
+
+    it('should fail if the COT token address is zero', async function() {
+
+      const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStaking");
+      const COTStaking = await COTStakingInitializable.deploy();
+
+      // Initialize the staking contract
+      const poolSize = ethers.utils.parseEther("10000");
+      const rewardRate = 10;
+      const minStackingLockTime = 100;
+      const poolDuration = 200;
+      const maxStakePerUser = ethers.utils.parseEther("5000");
+
+      await expect(COTStaking.initialize(
+        ethers.constants.AddressZero,
+        poolSize,
+        rewardRate,
+        minStackingLockTime,
+        poolDuration,
+        maxStakePerUser,
+      )).to.be.revertedWith('COTStaking: COT token address must not be zero');
+
+  
+    });
+
+
+    it('should fail if the pool size is zero', async function() {
+      const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStaking");
+      const COTStaking = await COTStakingInitializable.deploy();
+      const rewardRate = 10;
+      const minStackingLockTime = 100;
+      const poolDuration = 200;
+      const maxStakePerUser = ethers.utils.parseEther("5000");
+    
+      await expect(COTStaking.initialize(
+        fixtures.stakedToken.address,
+        0,
+        rewardRate,
+        minStackingLockTime,
+        poolDuration,
+        maxStakePerUser,
+      )).to.be.revertedWith('COTStaking: Pool size must be greater than zero');
+    });
+    
+    it('should fail if the reward rate is zero or 100', async function() {
+      const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStaking");
+      const COTStaking = await COTStakingInitializable.deploy();
+      const poolSize = ethers.utils.parseEther("10000");
+      const minStackingLockTime = 100;
+      const poolDuration = 200;
+      const maxStakePerUser = ethers.utils.parseEther("5000");
+    
+      await expect(COTStaking.initialize(
+        fixtures.stakedToken.address,
+        poolSize,
+        0,
+        minStackingLockTime,
+        poolDuration,
+        maxStakePerUser,
+      )).to.be.revertedWith('COTStaking: Reward rate must be greater than zero and less than 100');
+    
+      await expect(COTStaking.initialize(
+        fixtures.stakedToken.address,
+        poolSize,
+        100,
+        minStackingLockTime,
+        poolDuration,
+        maxStakePerUser,
+      )).to.be.revertedWith('COTStaking: Reward rate must be greater than zero and less than 100');
+    });
+    
+    it('should fail if the minimum stacking lock time is zero', async function() {
+      const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStaking");
+      const COTStaking = await COTStakingInitializable.deploy();
+      const poolSize = ethers.utils.parseEther("10000");
+      const rewardRate = 10;
+      const poolDuration = 200;
+      const maxStakePerUser = ethers.utils.parseEther("5000");
+    
+      await expect(COTStaking.initialize(
+        fixtures.stakedToken.address,
+        poolSize,
+        rewardRate,
+        0,
+        poolDuration,
+        maxStakePerUser,
+      )).to.be.revertedWith('COTStaking: Minimum stacking lock time must be greater than zero');
+    });
+    
+    it('should fail if the pool duration is less than or equal to the minimum stacking lock time', async function() {
+      const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStaking");
+      const COTStaking = await COTStakingInitializable.deploy();
+      const poolSize = ethers.utils.parseEther("10000");
+      const rewardRate = 10;
+      const minStackingLockTime = 100;
+      const maxStakePerUser = ethers.utils.parseEther("5000");
+    
+      await expect(COTStaking.initialize(
+        fixtures.stakedToken.address,        
+        poolSize,
+        rewardRate,
+        minStackingLockTime,
+        minStackingLockTime,
+        maxStakePerUser,
+      )).to.be.revertedWith('COTStaking: Pool duration must be greater than the minimum stacking lock time');
+    });
+
+
+    it("should revert when the staking amount exceeds the pool size", async () => {
+
+      const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStaking");
+      const COTStaking = await COTStakingInitializable.deploy();
+
+      // Initialize the staking contract
+      const poolSize = ethers.utils.parseEther("4000");
+      const rewardRate = 10;
+      const minStackingLockTime = 100;
+      const poolDuration = 200;
+      const maxStakePerUser = ethers.utils.parseEther("3000");
+
+      await (COTStaking.initialize(
+        fixtures.stakedToken.address,
+        poolSize,
+        rewardRate,
+        minStackingLockTime,
+        poolDuration,
+        maxStakePerUser,
+      ))
+
+      const stakeAmount = ethers.utils.parseEther("2500");
+      await fixtures.stakedToken.connect(fixtures.owner).approve(COTStaking.address, stakeAmount);
+      await fixtures.stakedToken.connect(fixtures.user).approve(COTStaking.address, stakeAmount);
+      
+      // owner will stake 
+      await COTStaking.connect(fixtures.owner).stake(stakeAmount);
+
+      // user will stake and get the error
+      await expect(COTStaking.connect(fixtures.user).stake(stakeAmount))
+          .to.be.revertedWith("COTStaking: Pool size limit reached");
+    });
+
+    it('should fail if max stake per user is zero', async function() {
+      const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStaking");
+      const COTStaking = await COTStakingInitializable.deploy();
+      const poolSize = ethers.utils.parseEther("10000");
+      const rewardRate = 10;
+      const minStackingLockTime = 100;
+      const poolDuration = 200;
+      const maxStakePerUser = ethers.utils.parseEther("0");
+    
+      await expect(COTStaking.initialize(
+        fixtures.stakedToken.address,
+        poolSize,
+        rewardRate,
+        minStackingLockTime,
+        poolDuration,
+        maxStakePerUser,
+      )).to.be.revertedWith('COTStaking: Maximum stake per user must be greater than zero');
+    });
+
+    it('should fail if max stake per user is greater than pool size', async function() {
+      const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStaking");
+      const COTStaking = await COTStakingInitializable.deploy();
+      const poolSize = ethers.utils.parseEther("10000");
+      const rewardRate = 10;
+      const minStackingLockTime = 100;
+      const poolDuration = 200;
+      const maxStakePerUser = ethers.utils.parseEther("20000");
+    
+      await expect(COTStaking.initialize(
+        fixtures.stakedToken.address,
+        poolSize,
+        rewardRate,
+        minStackingLockTime,
+        poolDuration,
+        maxStakePerUser,
+      )).to.be.revertedWith('COTStaking: Maximum stake per user must be less than or equal to the pool size');
+    });
+
+    it("should revert when staking after the pool has ended", async () => {
+      const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStaking");
+      const COTStaking = await COTStakingInitializable.deploy();
+  
+      // Initialize the staking contract
+      const poolSize = ethers.utils.parseEther("4000");
+      const rewardRate = 10;
+      const minStackingLockTime = 100;
+      const poolDuration = 200;
+      const maxStakePerUser = ethers.utils.parseEther("3000");
+  
+      await (COTStaking.initialize(
+          fixtures.stakedToken.address,
+          poolSize,
+          rewardRate,
+          minStackingLockTime,
+          poolDuration,
+          maxStakePerUser,
+      ))
+  
+      const stakeAmount = ethers.utils.parseEther("2500");
+      await fixtures.stakedToken.connect(fixtures.owner).approve(COTStaking.address, stakeAmount);
+  
+      // Fast-forward to after the pool end block
+      const blocksToAdvance = poolDuration + 1;
+      for (let i = 0; i < blocksToAdvance; i++) {
+          await network.provider.send("evm_mine");
+      }
+  
+      // Attempt to stake after the pool has ended
+      await expect(COTStaking.connect(fixtures.owner).stake(stakeAmount))
+          .to.be.revertedWith("COTStaking: This pool is finished");
+  });
+
+
   
 
   });

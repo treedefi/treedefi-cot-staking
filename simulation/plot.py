@@ -2,9 +2,9 @@ import numpy as np
 import plotly.graph_objects as go
 
 # Parameters
-pool_duration = 1000  # Assuming poolDuration is 1000 blocks
+pool_duration = 2000  # Assuming poolDuration is 2000 blocks
 reward_rate = 20  # Assuming rewardRate is 20%
-stake_amount = 100  # Assuming the user stakes 100 tokens
+stake_amount = 150  # Assuming the user stakes 100 tokens
 
 # Staking times
 T0 = 0
