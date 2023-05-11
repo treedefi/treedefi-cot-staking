@@ -1,5 +1,6 @@
+// TreedefiCOTStaking.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.17;
 pragma abicoder v2;
 import "hardhat/console.sol";
 
@@ -20,7 +21,7 @@ import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
  * @author Hashdev LTD
 */ 
 
-contract COTStakingInitializable is Ownable, ReentrancyGuard {
+contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20Metadata;
     using SafeMath for uint256;
 
@@ -29,9 +30,9 @@ contract COTStakingInitializable is Ownable, ReentrancyGuard {
     uint256 public rewardRate; // reward rate in percentage 
     uint256 public minStackingLockTime; // minimum locking time in blocks
     uint256 public poolDuration; // pool duration in blocks
-    uint256 public poolRewardEndBlock; // end block of the pool
     uint256 public maxStakePerUser; // maximum stake amount per user
 
+    uint256 public poolRewardEndBlock; // end block of the pool
     uint256 private _totalStaked;
     uint256 private _lastBlockReward;
 

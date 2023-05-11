@@ -10,7 +10,7 @@ async function setup() {
   await stakedToken.mint(owner.address, ethers.utils.parseEther("1000"));
   await stakedToken.mint(user.address, ethers.utils.parseEther("1000"));
 
-  const COTStakingInitializable = await ethers.getContractFactory("COTStakingInitializable");
+  const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStaking");
   const COTStaking = await COTStakingInitializable.deploy();
 
   // Initialize the staking contract
@@ -47,7 +47,7 @@ async function setup() {
   };
 }
 
-describe("COTStakingInitializable", function () {
+describe("Treedefi COT Staking - Tests ", function () {
   let fixtures;
 
   beforeEach(async () => {
