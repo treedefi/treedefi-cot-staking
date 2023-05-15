@@ -38,17 +38,24 @@ contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
 
     bool private initialized = false;
 
+    /// @dev Represents an individual stake in the contract
     struct Stake {
-        uint256 amount;
-        uint256 startBlock;
-        uint256 endBlock;
-        uint256 earnedRewards;
+        uint256 amount;       // The amount of tokens staked
+        uint256 startBlock;   // The block number when the stake was created
+        uint256 endBlock;     // The block number when the stake is set to end
+        uint256 earnedRewards;// The total rewards earned from this stake
     }
 
+    /// @dev Maps an address to its current stake
     mapping(address => Stake) private _stakes;
 
+    /// @dev Emitted when a user stakes tokens
     event Staked(address indexed user, uint256 amount);
+
+    /// @dev Emitted when a user unstakes tokens
     event Unstaked(address indexed user, uint256 amount);
+
+    /// @dev Emitted when a user claims their reward tokens
     event RewardClaimed(address indexed user, uint256 amount);
 
     /** 

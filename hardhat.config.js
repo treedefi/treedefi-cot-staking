@@ -1,5 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
 require('@openzeppelin/hardhat-upgrades');
+require('hardhat-docgen');
 
 
 /** @type import('hardhat/config').HardhatUserConfig */
