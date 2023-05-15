@@ -4,13 +4,16 @@ pragma solidity ^0.8.17;
 pragma abicoder v2;
 import "hardhat/console.sol";
 
+// OZ imports
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
+
+// TD imports
+import {TreedefiCOTStakingWhitelist} from "./TreedefiCOTStakingWhitelist.sol";
+
 
 /** @title COT Staking contract
  * @dev This contract uses a linear staking mechanism, 
@@ -24,8 +27,10 @@ import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20Metadata;
     using SafeMath for uint256;
-
     IERC20Metadata public cotToken;
+    TreedefiCOTStakingWhitelist public whitelist;
+    
+    bool public isWhitelistEnabled = false;
     uint256 public poolSize; // maximum COT allowed to be staked in the pool
     uint256 public rewardRate; // reward rate in percentage 
     uint256 public minStackingLockTime; // minimum locking time in blocks
