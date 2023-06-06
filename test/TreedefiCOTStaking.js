@@ -18,7 +18,7 @@ async function setup() {
 
   // Initialize the whitelist contract
 
-  await TreedefiWhitelist.addToWhitelist(owner.address);
+  await TreedefiWhitelist.addToWhitelist([owner.address]);
 
 
   // Initialize the staking contract
