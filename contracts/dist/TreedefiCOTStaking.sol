@@ -11,8 +11,8 @@ import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IER
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-// TD imports
-import {TreedefiCOTStakingWhitelist} from "./TreedefiCOTStakingWhitelist.sol";
+// Treedefi imports
+import {TreedefiWhitelist} from "./TreedefiWhitelist.sol";
 
 
 /** @title COT Staking contract
@@ -21,14 +21,15 @@ import {TreedefiCOTStakingWhitelist} from "./TreedefiCOTStakingWhitelist.sol";
  * @dev The contract calculates rewards using a formula that takes into account the stake amount, the reward rate, and the duration of the stake in blocks.
  * @notice This linear staking mechanism means that the longer a user stakes their tokens, the more rewards they will earn, 
  * @notice  as long as they stake for at least the minimum locking time required by the contract and less than maximum allowed per each user.
- * @author Hashdev LTD
+ * @author Treedefi LLC
 */ 
 
 contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20Metadata;
     using SafeMath for uint256;
     IERC20Metadata public cotToken;
-    TreedefiCOTStakingWhitelist public whitelist;
+    TreedefiWhitelist public whitelist;
+
     
     bool public isWhitelistEnabled = false;
     uint256 public poolSize; // maximum COT allowed to be staked in the pool
@@ -74,6 +75,7 @@ contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
 
     function initialize(
         address cotToken_,
+        address whitelist_,
         uint256 poolSize_,
         uint256 rewardRate_,
         uint256 minStackingLockTime_,
@@ -98,6 +100,8 @@ contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
 
         poolRewardEndBlock = block.number.add(poolDuration_);
         initialized = true;
+        whitelist = TreedefiWhitelist(whitelist_);
+
     }
 
     /**
@@ -107,6 +111,7 @@ contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
      * @param amount The amount of COT tokens to stake.
      */
     function stake(uint256 amount) external nonReentrant {
+        require(!isWhitelistEnabled || whitelist.isWhitelisted(msg.sender), "Not whitelisted");
         require(amount > 0, "COTStaking: Amount must be greater than zero");
         require(_totalStaked.add(amount) <= poolSize, "COTStaking: Pool size limit reached");
         require (block.number < poolRewardEndBlock, "COTStaking: This pool is finished");
