@@ -18,7 +18,7 @@ import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
  * @dev The contract calculates rewards using a formula that takes into account the stake amount, the reward rate, and the duration of the stake in blocks.
  * @notice This linear staking mechanism means that the longer a user stakes their tokens, the more rewards they will earn, 
  * @notice  as long as they stake for at least the minimum locking time required by the contract and less than maximum allowed per each user.
- * @author Hashdev LTD
+ * @author Treedefi LLC
 */ 
 
 contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
