@@ -6,6 +6,8 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 import "./dist/TreedefiCOTStaking.sol";
+import "./dist/TreedefiWhitelist.sol";
+
 
 contract TreedefiStakingFactory is Ownable {
     event NewTreedefiStakingContract(address indexed cotStaking);
@@ -19,6 +21,7 @@ contract TreedefiStakingFactory is Ownable {
      */
     function deployPool(
         IERC20Metadata _cotToken,
+        TreedefiWhitelist _whitelist,
         uint256 _poolSize,
         uint256 _rewardRate,
         uint256 _minStackingLockTime,
@@ -41,6 +44,7 @@ contract TreedefiStakingFactory is Ownable {
 
         TreedefiCOTStaking(cotStakingAddress).initialize(
          address(_cotToken),
+         address(_whitelist),
          _poolSize,
          _rewardRate,
          _minStackingLockTime,
