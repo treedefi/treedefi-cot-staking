@@ -105,13 +105,27 @@ contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
     }
 
     /**
+    * @dev Toggles the state of the whitelist functionality. 
+    *      If whitelist is enabled, it will be disabled and vice versa.
+    *      This function can only be called by the owner of the contract.
+    *
+    * @notice This function allows the owner to enable or disable the whitelist functionality.
+    *         If the whitelist is enabled, only addresses that are added to the whitelist
+    *         can interact with the contract. If it is disabled, all addresses can interact with the contract.
+    */
+
+    function toggleWhitelist() external onlyOwner {
+        isWhitelistEnabled = !isWhitelistEnabled;
+    }
+
+    /**
      * @notice Stakes a specified amount of COT tokens or increases an existing stake.
      * @dev If the user has an existing stake, the function updates the staked amount, endBlock, and earnedRewards.
      * @dev If the user doesn't have an existing stake, a new stake is created
      * @param amount The amount of COT tokens to stake.
      */
     function stake(uint256 amount) external nonReentrant {
-        require(!isWhitelistEnabled || whitelist.isWhitelisted(msg.sender), "Not whitelisted");
+        require(!isWhitelistEnabled || whitelist.isWhitelisted(msg.sender), "COTStaking: user is not whitelisted");
         require(amount > 0, "COTStaking: Amount must be greater than zero");
         require(_totalStaked.add(amount) <= poolSize, "COTStaking: Pool size limit reached");
         require (block.number < poolRewardEndBlock, "COTStaking: This pool is finished");

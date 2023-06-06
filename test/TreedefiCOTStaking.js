@@ -102,6 +102,18 @@ describe("Treedefi COT Staking - Tests ", function () {
       expect(COTStakingBalance).to.equal(stakeAmount);
     });
 
+    it.only("should block staking because user is not whitelisted", async () => {
+
+      // enable whitelisting 
+      await fixtures.COTStaking.connect(fixtures.owner).toggleWhitelist();
+      
+      const stakeAmount = ethers.utils.parseEther("500");
+      const blockNumberBeforeStake = await ethers.provider.getBlockNumber();
+      // expect(await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount).to.be.revertedWith('COTStaking: user is not whitelisted'));
+  
+
+    });
+
     it("should stake tokens again successfully", async () => {
         const stakeAmount = ethers.utils.parseEther("500");
         const blockNumberBeforeStake = await ethers.provider.getBlockNumber();
