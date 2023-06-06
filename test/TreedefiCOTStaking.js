@@ -14,11 +14,11 @@ async function setup() {
   const COTStaking = await COTStakingInitializable.deploy();
 
   const TreedefiWthitelistInitializable = await ethers.getContractFactory("TreedefiWhitelist");
-  const TreedefiWhitelist = await TreedefiWthitelistInitializable.deploy();
+  const treedefiWhitelist = await TreedefiWthitelistInitializable.deploy();
 
   // Initialize the whitelist contract
 
-  await TreedefiWhitelist.addToWhitelist([owner.address]);
+  await treedefiWhitelist.addToWhitelist([owner.address]);
 
 
   // Initialize the staking contract
@@ -30,6 +30,7 @@ async function setup() {
 
   await COTStaking.initialize(
     stakedToken.address,
+    treedefiWhitelist.address,
     poolSize,
     rewardRate,
     minStackingLockTime,
@@ -47,6 +48,7 @@ async function setup() {
     stakedToken,
     COTStakingInitializable,
     COTStaking,
+    treedefiWhitelist,
     poolSize,
     rewardRate,
     minStackingLockTime,
@@ -69,6 +71,7 @@ describe("Treedefi COT Staking - Tests ", function () {
       const endBlock = fixtures.poolDuration + blockNumber;
 
       expect(await fixtures.COTStaking.cotToken()).to.equal(fixtures.stakedToken.address);
+      expect(await fixtures.COTStaking.whitelist()).to.equal(fixtures.treedefiWhitelist.address);
       expect(await fixtures.COTStaking.poolSize()).to.equal(fixtures.poolSize);
       expect(await fixtures.COTStaking.rewardRate()).to.equal(fixtures.rewardRate);
       expect(await fixtures.COTStaking.minStackingLockTime()).to.equal(fixtures.minStackingLockTime);
@@ -393,6 +396,7 @@ describe("Treedefi COT Staking - Tests ", function () {
 
       await expect(fixtures.COTStaking.initialize(
         ethers.constants.AddressZero,
+        fixtures.treedefiWhitelist.address,
         poolSize,
         rewardRate,
         minStackingLockTime,
@@ -417,6 +421,7 @@ describe("Treedefi COT Staking - Tests ", function () {
 
       await expect(COTStaking.initialize(
         ethers.constants.AddressZero,
+        fixtures.treedefiWhitelist.address,
         poolSize,
         rewardRate,
         minStackingLockTime,
@@ -438,6 +443,7 @@ describe("Treedefi COT Staking - Tests ", function () {
     
       await expect(COTStaking.initialize(
         fixtures.stakedToken.address,
+        fixtures.treedefiWhitelist.address,
         0,
         rewardRate,
         minStackingLockTime,
@@ -456,6 +462,7 @@ describe("Treedefi COT Staking - Tests ", function () {
     
       await expect(COTStaking.initialize(
         fixtures.stakedToken.address,
+        fixtures.treedefiWhitelist.address,
         poolSize,
         0,
         minStackingLockTime,
@@ -465,6 +472,7 @@ describe("Treedefi COT Staking - Tests ", function () {
     
       await expect(COTStaking.initialize(
         fixtures.stakedToken.address,
+        fixtures.treedefiWhitelist.address,
         poolSize,
         100,
         minStackingLockTime,
@@ -483,6 +491,7 @@ describe("Treedefi COT Staking - Tests ", function () {
     
       await expect(COTStaking.initialize(
         fixtures.stakedToken.address,
+        fixtures.treedefiWhitelist.address,
         poolSize,
         rewardRate,
         0,
@@ -500,7 +509,8 @@ describe("Treedefi COT Staking - Tests ", function () {
       const maxStakePerUser = ethers.utils.parseEther("5000");
     
       await expect(COTStaking.initialize(
-        fixtures.stakedToken.address,        
+        fixtures.stakedToken.address,      
+        fixtures.treedefiWhitelist.address,  
         poolSize,
         rewardRate,
         minStackingLockTime,
@@ -524,6 +534,7 @@ describe("Treedefi COT Staking - Tests ", function () {
 
       await (COTStaking.initialize(
         fixtures.stakedToken.address,
+        fixtures.treedefiWhitelist.address,
         poolSize,
         rewardRate,
         minStackingLockTime,
@@ -554,6 +565,7 @@ describe("Treedefi COT Staking - Tests ", function () {
     
       await expect(COTStaking.initialize(
         fixtures.stakedToken.address,
+        fixtures.treedefiWhitelist.address,
         poolSize,
         rewardRate,
         minStackingLockTime,
@@ -573,6 +585,7 @@ describe("Treedefi COT Staking - Tests ", function () {
     
       await expect(COTStaking.initialize(
         fixtures.stakedToken.address,
+        fixtures.treedefiWhitelist.address,
         poolSize,
         rewardRate,
         minStackingLockTime,
@@ -594,6 +607,7 @@ describe("Treedefi COT Staking - Tests ", function () {
   
       await (COTStaking.initialize(
           fixtures.stakedToken.address,
+          fixtures.treedefiWhitelist.address,
           poolSize,
           rewardRate,
           minStackingLockTime,
