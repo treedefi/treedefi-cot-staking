@@ -22,8 +22,4 @@ contract TreedefiWhitelist is Ownable {
         return _whitelist[user];
     }
 
-    function whitelistFunc() external view {
-        require(_whitelist[msg.sender], "NOT_IN_WHITELIST");
-        // Do some useful stuff
-    }
 }

@@ -13,6 +13,14 @@ async function setup() {
   const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStaking");
   const COTStaking = await COTStakingInitializable.deploy();
 
+  const TreedefiWthitelistInitializable = await ethers.getContractFactory("TreedefiWhitelist");
+  const TreedefiWhitelist = await TreedefiWthitelistInitializable.deploy();
+
+  // Initialize the whitelist contract
+
+  await TreedefiWhitelist.addToWhitelist(owner.address);
+
+
   // Initialize the staking contract
   const poolSize = ethers.utils.parseEther("10000");
   const rewardRate = 10;
