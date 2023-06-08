@@ -102,17 +102,24 @@ describe("Treedefi COT Staking - Tests ", function () {
       expect(COTStakingBalance).to.equal(stakeAmount);
     });
 
-    it.only("should block staking because user is not whitelisted", async () => {
-
-      // enable whitelisting 
+    it("should fail to stake tokens because user is not whitelisted", async () => {
+      // Enable whitelisting
       await fixtures.COTStaking.connect(fixtures.owner).toggleWhitelist();
-      
+    
+      // Attempt to stake tokens
       const stakeAmount = ethers.utils.parseEther("500");
-      const blockNumberBeforeStake = await ethers.provider.getBlockNumber();
-      // expect(await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount).to.be.revertedWith('COTStaking: user is not whitelisted'));
-  
-
+      
+      await expect(fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount)).to.be.revertedWith("COTStaking: user is not whitelisted");
+    
+      // Check that no tokens were staked
+      const stakeInfo = await fixtures.COTStaking.getUserStake(fixtures.user.address);
+    
+      expect(stakeInfo.amount).to.equal(0);
+    
+      const COTStakingBalance = await fixtures.stakedToken.balanceOf(fixtures.COTStaking.address);
+      expect(COTStakingBalance).to.equal(0);
     });
+    
 
     it("should stake tokens again successfully", async () => {
         const stakeAmount = ethers.utils.parseEther("500");
