@@ -4,13 +4,16 @@ pragma solidity ^0.8.17;
 pragma abicoder v2;
 import "hardhat/console.sol";
 
+// OZ imports
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-
 import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
+
+// Treedefi imports
+import {TreedefiWhitelist} from "./TreedefiWhitelist.sol";
+
 
 /** @title COT Staking contract
  * @dev This contract uses a linear staking mechanism, 
@@ -24,8 +27,11 @@ import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20Metadata;
     using SafeMath for uint256;
-
     IERC20Metadata public cotToken;
+    TreedefiWhitelist public whitelist;
+
+    
+    bool public isWhitelistEnabled = false;
     uint256 public poolSize; // maximum COT allowed to be staked in the pool
     uint256 public rewardRate; // reward rate in percentage 
     uint256 public minStackingLockTime; // minimum locking time in blocks
@@ -69,6 +75,7 @@ contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
 
     function initialize(
         address cotToken_,
+        address whitelist_,
         uint256 poolSize_,
         uint256 rewardRate_,
         uint256 minStackingLockTime_,
@@ -93,6 +100,22 @@ contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
 
         poolRewardEndBlock = block.number.add(poolDuration_);
         initialized = true;
+        whitelist = TreedefiWhitelist(whitelist_);
+
+    }
+
+    /**
+    * @dev Toggles the state of the whitelist functionality. 
+    *      If whitelist is enabled, it will be disabled and vice versa.
+    *      This function can only be called by the owner of the contract.
+    *
+    * @notice This function allows the owner to enable or disable the whitelist functionality.
+    *         If the whitelist is enabled, only addresses that are added to the whitelist
+    *         can interact with the contract. If it is disabled, all addresses can interact with the contract.
+    */
+
+    function toggleWhitelist() external onlyOwner {
+        isWhitelistEnabled = !isWhitelistEnabled;
     }
 
     /**
@@ -102,6 +125,7 @@ contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
      * @param amount The amount of COT tokens to stake.
      */
     function stake(uint256 amount) external nonReentrant {
+        require(!isWhitelistEnabled || whitelist.isWhitelisted(msg.sender), "COTStaking: user is not whitelisted");
         require(amount > 0, "COTStaking: Amount must be greater than zero");
         require(_totalStaked.add(amount) <= poolSize, "COTStaking: Pool size limit reached");
         require (block.number < poolRewardEndBlock, "COTStaking: This pool is finished");
