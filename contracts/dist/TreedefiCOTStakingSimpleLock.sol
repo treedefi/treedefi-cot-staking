@@ -24,7 +24,7 @@ import {TreedefiWhitelist} from "./TreedefiWhitelist.sol";
  * @author Treedefi LLC
 */ 
 
-contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
+contract TreedefiCOTStakingSimpleLock is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20Metadata;
     using SafeMath for uint256;
     IERC20Metadata public cotToken;
@@ -120,10 +120,12 @@ contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
 
     /**
      * @notice Stakes a specified amount of COT tokens or increases an existing stake.
-     * @dev If the user has an existing stake, the function updates the staked amount, endBlock, and earnedRewards.
-     * @dev If the user doesn't have an existing stake, a new stake is created
+     * @dev If the user has an existing stake, the function updates the staked amount and earned rewards.
+     * @dev If the user doesn't have an existing stake, a new stake is created.
+     * @dev In both cases, the stake's end block is set to the end of the pool duration.
      * @param amount The amount of COT tokens to stake.
      */
+
     function stake(uint256 amount) external nonReentrant {
         require(!isWhitelistEnabled || whitelist.isWhitelisted(msg.sender), "COTStaking: user is not whitelisted");
         require(amount > 0, "COTStaking: Amount must be greater than zero");
@@ -137,7 +139,6 @@ contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
         if (stake_.amount > 0) {
             uint256 pendingRewards = userPendingRewards(msg.sender);
             stake_.amount = stake_.amount.add(amount); // Update staked amount
-            stake_.endBlock = block.number.add(minStackingLockTime);
             stake_.earnedRewards = stake_.earnedRewards.add(pendingRewards); // Update earned rewards
             stake_.startBlock = block.number; // Reset the start block
         }
@@ -145,13 +146,12 @@ contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
         else {
             stake_.amount = amount;
             stake_.startBlock = block.number;
-            stake_.endBlock = block.number.add(minStackingLockTime);
         }
 
+        stake_.endBlock = poolRewardEndBlock; // Set endBlock to be the end of the pool
+
         _totalStaked = _totalStaked.add(amount);
-
         cotToken.safeTransferFrom(msg.sender, address(this), amount);
-
         emit Staked(msg.sender, amount);
     }
    
