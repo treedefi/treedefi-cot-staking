@@ -166,7 +166,7 @@ contract TreedefiCOTStakingSimpleLock is Ownable, ReentrancyGuard {
         Stake storage stake_ = _stakes[msg.sender];
 
         require(stake_.amount > 0, "COTStaking: No active stake");
-        require(block.number >= stake_.startBlock.add(minStackingLockTime), "COTStaking: Minimum staking lock time not reached");
+        require(block.number > stake_.endBlock, "COTStaking: Minimum staking lock time not reached");
 
         uint256 userRewards = userPendingRewards(msg.sender).add(stake_.earnedRewards); // Add the earnedRewards to the user's pending rewards
         cotToken.safeTransfer(msg.sender, stake_.amount.add(userRewards));
