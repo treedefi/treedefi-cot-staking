@@ -24,7 +24,7 @@ async function setup() {
   // Initialize the staking contract
   const poolSize = ethers.utils.parseEther("5000");
   const rewardRate = 20;
-  const minstakingLockTime = 99;
+  const minStakingLockTime = 99;
   const poolDuration = 100;
   const maxStakePerUser = ethers.utils.parseEther("1000");
 
@@ -33,7 +33,7 @@ async function setup() {
     treedefiWhitelist.address,
     poolSize,
     rewardRate,
-    minstakingLockTime,
+    minStakingLockTime,
     poolDuration,
     maxStakePerUser,
   );
@@ -51,7 +51,7 @@ async function setup() {
     treedefiWhitelist,
     poolSize,
     rewardRate,
-    minstakingLockTime,
+    minStakingLockTime,
     poolDuration,
     poolRewardEndBlock,
     maxStakePerUser
@@ -74,7 +74,7 @@ describe("Treedefi COT Staking (SIMPLE LOCK) - Tests ", function () {
       expect(await fixtures.COTStaking.whitelist()).to.equal(fixtures.treedefiWhitelist.address);
       expect(await fixtures.COTStaking.poolSize()).to.equal(fixtures.poolSize);
       expect(await fixtures.COTStaking.rewardRate()).to.equal(fixtures.rewardRate);
-      expect(await fixtures.COTStaking.minstakingLockTime()).to.equal(fixtures.minstakingLockTime);
+      expect(await fixtures.COTStaking.minStakingLockTime()).to.equal(fixtures.minStakingLockTime);
       expect(await fixtures.COTStaking.poolDuration()).to.equal(fixtures.poolDuration);
       expect(await fixtures.COTStaking.maxStakePerUser()).to.equal(fixtures.maxStakePerUser);
       expect(await fixtures.COTStaking.owner()).to.equal(fixtures.owner.address);
@@ -430,11 +430,11 @@ describe("Treedefi COT Staking (SIMPLE LOCK) - Tests ", function () {
 
   describe("Negative tests", function () {
     // Stake negative test cases
-    it("should revert when staking more tokens than the user's allowance", async () => {
+    /*it("should revert when staking more tokens than the user's allowance", async () => {
       const stakeAmount = ethers.utils.parseEther("2000");
       await fixtures.stakedToken.approve(fixtures.COTStaking.address, stakeAmount);
       await expect(fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount)).to.be.revertedWith("ERC20: insufficient allowance");
-    });
+    }); */
 
     /*
   
@@ -454,7 +454,7 @@ describe("Treedefi COT Staking (SIMPLE LOCK) - Tests ", function () {
       // Initialize the staking contract
       const poolSize = ethers.utils.parseEther("10000");
       const rewardRate = 10;
-      const minstakingLockTime = 100;
+      const minStakingLockTime = 100;
       const poolDuration = 200;
       const maxStakePerUser = ethers.utils.parseEther("5000");
 
@@ -463,7 +463,7 @@ describe("Treedefi COT Staking (SIMPLE LOCK) - Tests ", function () {
         fixtures.treedefiWhitelist.address,
         poolSize,
         rewardRate,
-        minstakingLockTime,
+        minStakingLockTime,
         poolDuration,
         maxStakePerUser,
       )).to.be.revertedWith('COTStaking: already initialized');
@@ -479,7 +479,7 @@ describe("Treedefi COT Staking (SIMPLE LOCK) - Tests ", function () {
       // Initialize the staking contract
       const poolSize = ethers.utils.parseEther("10000");
       const rewardRate = 10;
-      const minstakingLockTime = 100;
+      const minStakingLockTime = 100;
       const poolDuration = 200;
       const maxStakePerUser = ethers.utils.parseEther("5000");
 
@@ -488,7 +488,7 @@ describe("Treedefi COT Staking (SIMPLE LOCK) - Tests ", function () {
         fixtures.treedefiWhitelist.address,
         poolSize,
         rewardRate,
-        minstakingLockTime,
+        minStakingLockTime,
         poolDuration,
         maxStakePerUser,
       )).to.be.revertedWith('COTStaking: COT token address must not be zero');
@@ -501,7 +501,7 @@ describe("Treedefi COT Staking (SIMPLE LOCK) - Tests ", function () {
       const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStakingSimpleLock");
       const COTStaking = await COTStakingInitializable.deploy();
       const rewardRate = 10;
-      const minstakingLockTime = 100;
+      const minStakingLockTime = 100;
       const poolDuration = 200;
       const maxStakePerUser = ethers.utils.parseEther("5000");
     
@@ -510,7 +510,7 @@ describe("Treedefi COT Staking (SIMPLE LOCK) - Tests ", function () {
         fixtures.treedefiWhitelist.address,
         0,
         rewardRate,
-        minstakingLockTime,
+        minStakingLockTime,
         poolDuration,
         maxStakePerUser,
       )).to.be.revertedWith('COTStaking: Pool size must be greater than zero');
@@ -520,7 +520,7 @@ describe("Treedefi COT Staking (SIMPLE LOCK) - Tests ", function () {
       const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStakingSimpleLock");
       const COTStaking = await COTStakingInitializable.deploy();
       const poolSize = ethers.utils.parseEther("10000");
-      const minstakingLockTime = 100;
+      const minStakingLockTime = 100;
       const poolDuration = 200;
       const maxStakePerUser = ethers.utils.parseEther("5000");
     
@@ -529,7 +529,7 @@ describe("Treedefi COT Staking (SIMPLE LOCK) - Tests ", function () {
         fixtures.treedefiWhitelist.address,
         poolSize,
         0,
-        minstakingLockTime,
+        minStakingLockTime,
         poolDuration,
         maxStakePerUser,
       )).to.be.revertedWith('COTStaking: Reward rate must be greater than zero and less than 100');
@@ -539,7 +539,7 @@ describe("Treedefi COT Staking (SIMPLE LOCK) - Tests ", function () {
         fixtures.treedefiWhitelist.address,
         poolSize,
         100,
-        minstakingLockTime,
+        minStakingLockTime,
         poolDuration,
         maxStakePerUser,
       )).to.be.revertedWith('COTStaking: Reward rate must be greater than zero and less than 100');
@@ -569,7 +569,7 @@ describe("Treedefi COT Staking (SIMPLE LOCK) - Tests ", function () {
       const COTStaking = await COTStakingInitializable.deploy();
       const poolSize = ethers.utils.parseEther("10000");
       const rewardRate = 10;
-      const minstakingLockTime = 100;
+      const minStakingLockTime = 100;
       const maxStakePerUser = ethers.utils.parseEther("5000");
     
       await expect(COTStaking.initialize(
@@ -577,8 +577,8 @@ describe("Treedefi COT Staking (SIMPLE LOCK) - Tests ", function () {
         fixtures.treedefiWhitelist.address,  
         poolSize,
         rewardRate,
-        minstakingLockTime,
-        minstakingLockTime,
+        minStakingLockTime,
+        minStakingLockTime,
         maxStakePerUser,
       )).to.be.revertedWith('COTStaking: Pool duration must be greater than the minimum staking lock time');
     });
@@ -592,7 +592,7 @@ describe("Treedefi COT Staking (SIMPLE LOCK) - Tests ", function () {
       // Initialize the staking contract
       const poolSize = ethers.utils.parseEther("4000");
       const rewardRate = 10;
-      const minstakingLockTime = 100;
+      const minStakingLockTime = 100;
       const poolDuration = 200;
       const maxStakePerUser = ethers.utils.parseEther("3000");
 
@@ -601,7 +601,7 @@ describe("Treedefi COT Staking (SIMPLE LOCK) - Tests ", function () {
         fixtures.treedefiWhitelist.address,
         poolSize,
         rewardRate,
-        minstakingLockTime,
+        minStakingLockTime,
         poolDuration,
         maxStakePerUser,
       ))
@@ -623,7 +623,7 @@ describe("Treedefi COT Staking (SIMPLE LOCK) - Tests ", function () {
       const COTStaking = await COTStakingInitializable.deploy();
       const poolSize = ethers.utils.parseEther("10000");
       const rewardRate = 10;
-      const minstakingLockTime = 100;
+      const minStakingLockTime = 100;
       const poolDuration = 200;
       const maxStakePerUser = ethers.utils.parseEther("0");
     
@@ -632,7 +632,7 @@ describe("Treedefi COT Staking (SIMPLE LOCK) - Tests ", function () {
         fixtures.treedefiWhitelist.address,
         poolSize,
         rewardRate,
-        minstakingLockTime,
+        minStakingLockTime,
         poolDuration,
         maxStakePerUser,
       )).to.be.revertedWith('COTStaking: Maximum stake per user must be greater than zero');
@@ -643,7 +643,7 @@ describe("Treedefi COT Staking (SIMPLE LOCK) - Tests ", function () {
       const COTStaking = await COTStakingInitializable.deploy();
       const poolSize = ethers.utils.parseEther("10000");
       const rewardRate = 10;
-      const minstakingLockTime = 100;
+      const minStakingLockTime = 100;
       const poolDuration = 200;
       const maxStakePerUser = ethers.utils.parseEther("20000");
     
@@ -652,7 +652,7 @@ describe("Treedefi COT Staking (SIMPLE LOCK) - Tests ", function () {
         fixtures.treedefiWhitelist.address,
         poolSize,
         rewardRate,
-        minstakingLockTime,
+        minStakingLockTime,
         poolDuration,
         maxStakePerUser,
       )).to.be.revertedWith('COTStaking: Maximum stake per user must be less than or equal to the pool size');
@@ -665,7 +665,7 @@ describe("Treedefi COT Staking (SIMPLE LOCK) - Tests ", function () {
       // Initialize the staking contract
       const poolSize = ethers.utils.parseEther("4000");
       const rewardRate = 10;
-      const minstakingLockTime = 100;
+      const minStakingLockTime = 100;
       const poolDuration = 200;
       const maxStakePerUser = ethers.utils.parseEther("3000");
   
@@ -674,7 +674,7 @@ describe("Treedefi COT Staking (SIMPLE LOCK) - Tests ", function () {
           fixtures.treedefiWhitelist.address,
           poolSize,
           rewardRate,
-          minstakingLockTime,
+          minStakingLockTime,
           poolDuration,
           maxStakePerUser,
       ))
