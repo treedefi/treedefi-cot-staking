@@ -22,11 +22,11 @@ async function setup() {
 
 
   // Initialize the staking contract
-  const poolSize = ethers.utils.parseEther("10000");
-  const rewardRate = 10;
-  const minStackingLockTime = 100;
-  const poolDuration = 200;
-  const maxStakePerUser = ethers.utils.parseEther("5000");
+  const poolSize = ethers.utils.parseEther("500");
+  const rewardRate = 20;
+  const minStackingLockTime = 99;
+  const poolDuration = 100;
+  const maxStakePerUser = ethers.utils.parseEther("500");
 
   await COTStaking.initialize(
     stakedToken.address,
@@ -156,14 +156,14 @@ describe("Treedefi COT Staking - Tests ", function () {
       });
   });
 
-  describe.only("PendingReward", function () {
+  describe("PendingReward", function () {
     it("should correctly calculate the pending reward after advancing some blocks", async function () {
       const amountToStake = ethers.utils.parseEther("10");
   
       await fixtures.stakedToken.approve(fixtures.COTStaking.address, amountToStake);
       await fixtures.COTStaking.connect(fixtures.user).stake(amountToStake);
 
-      const blockToAdvance = 8;
+      const blockToAdvance = 100;
       const expectedReward = amountToStake.mul(fixtures.rewardRate).mul(blockToAdvance).div(fixtures.poolDuration).div(100);
 
       for (let i = 0; i < blockToAdvance; i++) {
@@ -203,6 +203,45 @@ describe("Treedefi COT Staking - Tests ", function () {
     
     });
 
+    it("should not increase rewards after pool ends and several blocks have passed", async function () {
+
+      // stake tokens
+      const amountToStake = ethers.utils.parseEther("250");
+      await fixtures.stakedToken.approve(fixtures.COTStaking.address, amountToStake);
+      await fixtures.COTStaking.connect(fixtures.user).stake(amountToStake);
+    
+      // compute last reward block
+      const poolRewardEndBlock = await fixtures.COTStaking.poolRewardEndBlock();
+    
+      // get current block 
+      const currentBlockNumber = await ethers.provider.getBlockNumber();
+    
+      // compute rewards until the pool ends
+      const diffBlocks = poolRewardEndBlock.sub(currentBlockNumber);
+      const expectedReward = amountToStake.mul(fixtures.rewardRate).mul(diffBlocks).div(fixtures.poolDuration).div(100);
+    
+      // mine until the pool ends
+      for (let i = 0; i < diffBlocks; i++) {
+        await network.provider.send("evm_mine");
+      }
+    
+      // check pending rewards at the end of the pool
+      let pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
+      expect(pendingRewards).to.be.equal(expectedReward);
+    
+      // mine additional blocks after pool has ended
+      const blocksAfterPoolEnds = 10;
+      for (let i = 0; i < blocksAfterPoolEnds; i++) {
+        await network.provider.send("evm_mine");
+      }
+    
+      // check that pending rewards have not increased after pool ended
+      pendingRewards = await fixtures.COTStaking.userPendingRewards(fixtures.user.address);
+      expect(pendingRewards).to.be.equal(expectedReward);
+    
+    });
+    
+
     
   
       
@@ -210,42 +249,41 @@ describe("Treedefi COT Staking - Tests ", function () {
 
   describe("Unstake", function () {
 
-    it("should unstake tokens and claim rewards successfully", async () => {
+    it.only("should unstake tokens and claim rewards successfully", async () => {
 
-        // mint and transfer 1500 COT to the smart contract
-        const rewardAmount = ethers.utils.parseEther("1500");
-        await fixtures.stakedToken.mint(fixtures.COTStaking.address, rewardAmount);
+      // mint and transfer 1500 COT to the smart contract
+      const rewardAmount = ethers.utils.parseEther("1500");
+      await fixtures.stakedToken.mint(fixtures.COTStaking.address, rewardAmount);
+  
+      // stake 500 Cot to the smart contract
+      const stakeAmount = ethers.utils.parseEther("100");
+      await fixtures.stakedToken.approve(fixtures.COTStaking.address, stakeAmount);
+      await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount);
+  
+      // Get the user's initial COT token balance before staking
+      const userInitialBalance = await fixtures.stakedToken.balanceOf(fixtures.user.address);
+      const stakeInfo = await fixtures.COTStaking.getUserStake(fixtures.user.address);
+  
+      // advance 200 blocks 
+      const blockToAdvance = 100;
+      for (let i = 0; i < blockToAdvance; i++) {
+        await network.provider.send("evm_mine");
+      }
+  
+      // compute expected reward (we added 1 more block to compute it correctly)
+      const expectedReward = stakeAmount.mul(fixtures.rewardRate).mul(blockToAdvance - 5).div(fixtures.poolDuration).div(100);
+  
+      // execute unstake function
+      await fixtures.COTStaking.connect(fixtures.user).unstake();
+      const userFinalBalance = await fixtures.stakedToken.balanceOf(fixtures.user.address);
+      const diffBalance = userFinalBalance.sub(userInitialBalance);
+  
+      // the updated balance (amount got from the SC) should be equal to staked amount + expected Reward
+      expect(diffBalance).to.be.equal(stakeAmount.add(expectedReward));
+  });
+  
 
-        // stake 500 Cot to the smart contract
-        const stakeAmount = ethers.utils.parseEther("500");
-        await fixtures.stakedToken.approve(fixtures.COTStaking.address, stakeAmount);
-        await fixtures.COTStaking.connect(fixtures.user).stake(stakeAmount);
-    
-        // Get the user's initial COT token balance before staking
-        const userInitialBalance = await fixtures.stakedToken.balanceOf(fixtures.user.address);
-        const stakeInfo = await fixtures.COTStaking.getUserStake(fixtures.user.address);
 
-        // advance 110 blocks (TODO: advance the necessary blocks to execute the unstake function)
-        // NOTE: when executing unstaking it will increase one additional block!!
-        const blockToAdvance = 200;
-        for (let i = 0; i < blockToAdvance; i++) {
-          await network.provider.send("evm_mine");
-        }
-
-        // compute expected reward (NOTE: we added 1 more block to compute it correctly)
-        
-        const expectedReward = stakeAmount.mul(fixtures.rewardRate).mul(blockToAdvance).div(fixtures.poolDuration).div(100);
-
-        // execute unstake function
-        await fixtures.COTStaking.connect(fixtures.user).unstake();
-        const userFinalBalance = await fixtures.stakedToken.balanceOf(fixtures.user.address);
-        const diffBalance = userFinalBalance.sub(userInitialBalance);
-
-        // the updated balance (amount got from the SC) should be equal to saked amount + expected Reward
-        expect(diffBalance).to.be.equal(stakeAmount.add(expectedReward));
-
-        
-      });
     it("should revert if the user has not staked yet", async () => {
       await expect(fixtures.COTStaking.connect(fixtures.user).unstake()).to.be.revertedWith("COTStaking: No active stake");
     });
