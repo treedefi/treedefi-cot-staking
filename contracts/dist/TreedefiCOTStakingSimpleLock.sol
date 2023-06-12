@@ -227,8 +227,7 @@ contract TreedefiCOTStakingSimpleLock is Ownable, ReentrancyGuard {
 
         // Check if the current block number is greater than the poolRewardEndBlock
         if (block.number >= poolRewardEndBlock) {
-            uint256 effectiveEndBlock = (stake_.startBlock.add(poolDuration) > poolRewardEndBlock) ? poolRewardEndBlock : stake_.startBlock.add(poolDuration);
-            blockPassed = effectiveEndBlock.sub(stake_.startBlock);
+            blockPassed = poolRewardEndBlock.sub(stake_.startBlock);
         } else {
             blockPassed = block.number.sub(stake_.startBlock);
         }

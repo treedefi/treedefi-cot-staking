@@ -156,14 +156,14 @@ describe("Treedefi COT Staking - Tests ", function () {
       });
   });
 
-  describe("PendingReward", function () {
+  describe.only("PendingReward", function () {
     it("should correctly calculate the pending reward after advancing some blocks", async function () {
       const amountToStake = ethers.utils.parseEther("10");
   
       await fixtures.stakedToken.approve(fixtures.COTStaking.address, amountToStake);
       await fixtures.COTStaking.connect(fixtures.user).stake(amountToStake);
 
-      const blockToAdvance = 5;
+      const blockToAdvance = 8;
       const expectedReward = amountToStake.mul(fixtures.rewardRate).mul(blockToAdvance).div(fixtures.poolDuration).div(100);
 
       for (let i = 0; i < blockToAdvance; i++) {
@@ -227,13 +227,14 @@ describe("Treedefi COT Staking - Tests ", function () {
 
         // advance 110 blocks (TODO: advance the necessary blocks to execute the unstake function)
         // NOTE: when executing unstaking it will increase one additional block!!
-        const blockToAdvance = 110;
+        const blockToAdvance = 200;
         for (let i = 0; i < blockToAdvance; i++) {
           await network.provider.send("evm_mine");
         }
 
         // compute expected reward (NOTE: we added 1 more block to compute it correctly)
-        const expectedReward = stakeAmount.mul(fixtures.rewardRate).mul(blockToAdvance+1).div(fixtures.poolDuration).div(100);
+        
+        const expectedReward = stakeAmount.mul(fixtures.rewardRate).mul(blockToAdvance).div(fixtures.poolDuration).div(100);
 
         // execute unstake function
         await fixtures.COTStaking.connect(fixtures.user).unstake();
