@@ -183,6 +183,44 @@ contract TreedefiCOTStakingSimpleLock is Ownable, ReentrancyGuard {
         emit RewardClaimed(msg.sender, userRewards);
     }
 
+    /**
+     * @dev Updates the reward rate, pool size, and maximum stake per user.
+     * Can only be called by the contract owner.
+     * @param newRewardRate The new reward rate to be set.
+     * @param newPoolSize The new pool size to be set.
+     * @param newMaxStakePerUser The new maximum stake per user to be set.
+     */
+    
+    function updatePool(uint256 newRewardRate, uint256 newPoolSize, uint256 newMaxStakePerUser) external onlyOwner {
+        require(newRewardRate > 0 && newRewardRate < 100, "Reward rate must be between 1 and 99");
+        rewardRate = newRewardRate;
+        poolSize = newPoolSize;
+        maxStakePerUser = newMaxStakePerUser;
+    }
+
+    /**
+     * @dev Allows the contract owner to recover any BEP20 tokens sent to the contract.
+     * @param tokenAddress The address of the token to recover.
+     * @param tokenAmount The amount of tokens to recover.
+     */
+    function recoverBEP20(address tokenAddress, uint256 tokenAmount) external onlyOwner {
+        IERC20Metadata token = IERC20Metadata(tokenAddress);
+        uint256 balance = token.balanceOf(address(this));
+        require(tokenAmount <= balance, "Cannot withdraw more than balance");
+        token.safeTransfer(owner(), tokenAmount);
+    }
+
+    /**
+     * @dev Allows the contract owner to recover any BNB sent to the contract.
+     * @param amount The amount of BNB to recover.
+     */
+    function recoverBNB(uint256 amount) external onlyOwner {
+        uint256 balance = address(this).balance;
+        require(amount <= balance, "Cannot withdraw more than balance");
+        payable(owner()).transfer(amount);
+    }
+
+
 
     /**
      * @notice Returns the remaining stake capacity in the pool.
