@@ -34,7 +34,7 @@ contract TreedefiCOTStakingSimpleLock is Ownable, ReentrancyGuard {
     bool public isWhitelistEnabled = false;
     uint256 public poolSize; // maximum COT allowed to be staked in the pool
     uint256 public rewardRate; // reward rate in percentage 
-    uint256 public minStackingLockTime; // minimum locking time in blocks
+    uint256 public minstakingLockTime; // minimum locking time in blocks
     uint256 public poolDuration; // pool duration in blocks
     uint256 public maxStakePerUser; // maximum stake amount per user
 
@@ -69,7 +69,7 @@ contract TreedefiCOTStakingSimpleLock is Ownable, ReentrancyGuard {
     * @param cotToken_ The address of the COT token
     * @param poolSize_ The total size of the staking pool as number of token accepted
     * @param rewardRate_ The rate at which rewards are earned as a percentage
-    * @param minStackingLockTime_ The minimum lock time for staking as block numbers
+    * @param minstakingLockTime_ The minimum lock time for staking as block numbers
     * @param poolDuration_ The duration of the staking pool as block numbers
     * */ 
 
@@ -78,7 +78,7 @@ contract TreedefiCOTStakingSimpleLock is Ownable, ReentrancyGuard {
         address whitelist_,
         uint256 poolSize_,
         uint256 rewardRate_,
-        uint256 minStackingLockTime_,
+        uint256 minstakingLockTime_,
         uint256 poolDuration_,
         uint256 maxStakePerUser_
     ) external onlyOwner {
@@ -86,15 +86,15 @@ contract TreedefiCOTStakingSimpleLock is Ownable, ReentrancyGuard {
         require(cotToken_ != address(0), "COTStaking: COT token address must not be zero");
         require(poolSize_ > 0, "COTStaking: Pool size must be greater than zero");
         require(rewardRate_ > 0 && rewardRate_ < 100, "COTStaking: Reward rate must be greater than zero and less than 100");
-        require(minStackingLockTime_ > 0, "COTStaking: Minimum stacking lock time must be greater than zero");
-        require(poolDuration_ > minStackingLockTime_, "COTStaking: Pool duration must be greater than the minimum stacking lock time");
+        require(minstakingLockTime_ > 0, "COTStaking: Minimum staking lock time must be greater than zero");
+        require(poolDuration_ > minstakingLockTime_, "COTStaking: Pool duration must be greater than the minimum staking lock time");
         require(maxStakePerUser_ > 0, "COTStaking: Maximum stake per user must be greater than zero");
         require(maxStakePerUser_ <= poolSize_, "COTStaking: Maximum stake per user must be less than or equal to the pool size");
 
         cotToken = IERC20Metadata(cotToken_);
         poolSize = poolSize_;
         rewardRate = rewardRate_;
-        minStackingLockTime = minStackingLockTime_;
+        minstakingLockTime = minstakingLockTime_;
         poolDuration = poolDuration_;
         maxStakePerUser = maxStakePerUser_;
 
