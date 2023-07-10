@@ -34,9 +34,6 @@ async function setup() {
   const csProxy = await upgrades.deployProxy(COTStakingInitializable, [stakedToken.address, treedefiWhitelist.address, poolSize, rewardRate, minStackingLockTime, poolDuration, maxStakePerUser], { initializer: "initialize" });
   await csProxy.deployed();
 
-  console.log("COTStakingUpgradeable deployed to:", csProxy.address);
-
-
   await stakedToken.transfer(user.address, ethers.utils.parseEther("1000"));
   await stakedToken.connect(user).approve(csProxy.address, ethers.utils.parseEther("1000"));
   const poolRewardEndBlock = await csProxy.poolRewardEndBlock;
@@ -47,6 +44,7 @@ async function setup() {
     stakedToken,
     COTStakingInitializable,
     COTStaking,
+    csProxy,
     treedefiWhitelist,
     poolSize,
     rewardRate,
@@ -70,17 +68,17 @@ describe("Treedefi COT Staking Upgradable - Tests ", function () {
           const blockNumber = await ethers.provider.getBlockNumber();
           const endBlock = fixtures.poolDuration + blockNumber;
     
-        //   expect(await fixtures.COTStaking.cotToken()).to.equal(fixtures.stakedToken.address);
-        //   expect(await fixtures.COTStaking.whitelist()).to.equal(fixtures.treedefiWhitelist.address);
-        //   expect(await fixtures.COTStaking.poolSize()).to.equal(fixtures.poolSize);
-        //   expect(await fixtures.COTStaking.rewardRate()).to.equal(fixtures.rewardRate);
-        //   expect(await fixtures.COTStaking.minStackingLockTime()).to.equal(fixtures.minStackingLockTime);
-        //   expect(await fixtures.COTStaking.poolDuration()).to.equal(fixtures.poolDuration);
-        //   expect(await fixtures.COTStaking.maxStakePerUser()).to.equal(fixtures.maxStakePerUser);
-        //   expect(await fixtures.COTStaking.owner()).to.equal(fixtures.owner.address);
+          expect(await fixtures.csProxy.cotToken()).to.equal(fixtures.stakedToken.address);
+          expect(await fixtures.csProxy.whitelist()).to.equal(fixtures.treedefiWhitelist.address);
+          expect(await fixtures.csProxy.poolSize()).to.equal(fixtures.poolSize);
+          expect(await fixtures.csProxy.rewardRate()).to.equal(fixtures.rewardRate);
+          expect(await fixtures.csProxy.minStackingLockTime()).to.equal(fixtures.minStackingLockTime);
+          expect(await fixtures.csProxy.poolDuration()).to.equal(fixtures.poolDuration);
+          expect(await fixtures.csProxy.maxStakePerUser()).to.equal(fixtures.maxStakePerUser);
+          // expect(await fixtures.csProxy.owner()).to.equal(fixtures.owner.address);
           
-        //   // allow 2 blocks tolerance
-        //   expect(await fixtures.COTStaking.poolRewardEndBlock()).to.be.closeTo(endBlock,2);
+          // allow 2 blocks tolerance
+          expect(await fixtures.csProxy.poolRewardEndBlock()).to.be.closeTo(endBlock,2);
     
         });
       });
