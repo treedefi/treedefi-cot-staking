@@ -11,6 +11,7 @@
         "@pancakeswap-libs/pancake-swap-core": "^0.1.0",
         "@pancakeswap/pancake-swap-lib": "^0.0.4",
         "bsc-library": "^0.0.1-security.24",
+        "dotenv": "^16.3.1",
         "solidity-docgen": "^0.6.0-beta.35"
     }
 }
