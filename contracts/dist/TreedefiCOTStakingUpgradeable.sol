@@ -4,13 +4,6 @@ pragma solidity ^0.8.17;
 pragma abicoder v2;
 import "hardhat/console.sol";
 
-// // OZ imports 
-// import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-// import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-// import {IERC20Metadata} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
-// import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-// import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
-
 // OZ upgradable imports
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -32,12 +25,20 @@ import {TreedefiWhitelist} from "./TreedefiWhitelist.sol";
  * @author Treedefi LLC
 */ 
 
-contract TreedefiCOTStaking is 
+contract TreedefiCOTStakingUpgradeable is 
     Initializable,
     ReentrancyGuardUpgradeable, 
     PausableUpgradeable, 
     AccessControlUpgradeable,
     UUPSUpgradeable { 
+
+    /**
+     * @custom:oz-upgrades-unsafe-allow constructor
+     */
+    
+    constructor() {
+        _disableInitializers();
+    }
 
     // roles for access control
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -47,18 +48,18 @@ contract TreedefiCOTStaking is
     ERC20Upgradeable public cotToken;
     TreedefiWhitelist public whitelist;
     
-    bool public isWhitelistEnabled = false;
     uint256 public poolSize; // maximum COT allowed to be staked in the pool
     uint256 public rewardRate; // reward rate in percentage 
     uint256 public minStackingLockTime; // minimum locking time in blocks
     uint256 public poolDuration; // pool duration in blocks
     uint256 public maxStakePerUser; // maximum stake amount per user
 
+
     uint256 public poolRewardEndBlock; // end block of the pool
     uint256 private _totalStaked;
     uint256 private _lastBlockReward;
 
-    // bool private initialized = false;
+    bool public isWhitelistEnabled;
 
     /// @dev Represents an individual stake in the contract
     struct Stake {
@@ -79,10 +80,6 @@ contract TreedefiCOTStaking is
 
     /// @dev Emitted when a user claims their reward tokens
     event RewardClaimed(address indexed user, uint256 amount);
-
-    constructor() {
-        _disableInitializers();
-    }
 
     /** 
     * @notice Initializes the staking contract
@@ -123,6 +120,7 @@ contract TreedefiCOTStaking is
         poolRewardEndBlock = block.number + poolDuration_;
         // initialized = true;
         whitelist = TreedefiWhitelist(whitelist_);
+        isWhitelistEnabled = false;
 
         // Access control management
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
