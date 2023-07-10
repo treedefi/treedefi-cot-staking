@@ -15,7 +15,7 @@ async function main() {
   const maxStakePerUser = ethers.utils.parseEther("250");
 
   const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStakingUpgradeable");
-  const COTStaking = await COTStakingInitializable.deploy();
+//   const COTStaking = await COTStakingInitializable.deploy();
 
   const csProxy = await upgrades.deployProxy(COTStakingInitializable, [cotContractAddress, whitelistContractAddress, poolSize, rewardRate, minStackingLockTime, poolDuration, maxStakePerUser], { initializer: "initialize" });
   await csProxy.deployed();

@@ -193,7 +193,7 @@ contract TreedefiCOTStakingUpgradeable is
         require(block.number >= (stake_.startBlock + minStackingLockTime), "COTStaking: Minimum staking lock time not reached");
 
         uint256 userRewards = userPendingRewards(msg.sender) + stake_.earnedRewards; // Add the earnedRewards to the user's pending rewards
-        cotToken.transferFrom(address(this), msg.sender, stake_.amount + userRewards);
+        cotToken.transfer(msg.sender, stake_.amount + userRewards);
         emit Unstaked(msg.sender, stake_.amount);
 
         _totalStaked -= stake_.amount;
