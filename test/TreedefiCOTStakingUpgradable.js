@@ -17,6 +17,13 @@ async function setup() {
   // Initialize the whitelist contract
   await treedefiWhitelist.addToWhitelist([owner.address]);
 
+    // Initialize the staking contract
+    const poolSize = ethers.utils.parseEther("10000");
+    const rewardRate = 10;
+    const minStackingLockTime = 100;
+    const poolDuration = 200;
+    const maxStakePerUser = ethers.utils.parseEther("5000");
+
   const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStakingUpgradeable");
   const COTStaking = await COTStakingInitializable.deploy();
   
@@ -29,28 +36,10 @@ async function setup() {
 
   console.log("COTStakingUpgradeable deployed to:", csProxy.address);
 
-   
-
-  // Initialize the staking contract
-  const poolSize = ethers.utils.parseEther("10000");
-  const rewardRate = 10;
-  const minStackingLockTime = 100;
-  const poolDuration = 200;
-  const maxStakePerUser = ethers.utils.parseEther("5000");
-
-  await COTStaking.initialize(
-    stakedToken.address,
-    treedefiWhitelist.address,
-    poolSize,
-    rewardRate,
-    minStackingLockTime,
-    poolDuration,
-    maxStakePerUser,
-  );
 
   await stakedToken.transfer(user.address, ethers.utils.parseEther("1000"));
-  await stakedToken.connect(user).approve(COTStaking.address, ethers.utils.parseEther("1000"));
-  const poolRewardEndBlock = await COTStaking.poolRewardEndBlock;
+  await stakedToken.connect(user).approve(csProxy.address, ethers.utils.parseEther("1000"));
+  const poolRewardEndBlock = await csProxy.poolRewardEndBlock;
 
   return {
     owner,
