@@ -20,7 +20,7 @@ async function setup() {
     // Initialize the staking contract
     const poolSize = ethers.utils.parseEther("10000");
     const rewardRate = 10;
-    const minStackingLockTime = 100;
+    const minStakingLockTime = 100;
     const poolDuration = 200;
     const maxStakePerUser = ethers.utils.parseEther("5000");
 
@@ -31,7 +31,7 @@ async function setup() {
   // its deployed() method, which happens once its transaction has been
   // mined.
 
-  const csProxy = await upgrades.deployProxy(COTStakingInitializable, [stakedToken.address, treedefiWhitelist.address, poolSize, rewardRate, minStackingLockTime, poolDuration, maxStakePerUser], { initializer: "initialize" });
+  const csProxy = await upgrades.deployProxy(COTStakingInitializable, [stakedToken.address, treedefiWhitelist.address, poolSize, rewardRate, minStakingLockTime, poolDuration, maxStakePerUser], { initializer: "initialize" });
   await csProxy.deployed();
 
   await stakedToken.transfer(user.address, ethers.utils.parseEther("1000"));
@@ -48,7 +48,7 @@ async function setup() {
     treedefiWhitelist,
     poolSize,
     rewardRate,
-    minStackingLockTime,
+    minStakingLockTime,
     poolDuration,
     poolRewardEndBlock,
     maxStakePerUser
@@ -72,7 +72,7 @@ describe("Treedefi COT Staking Upgradable - Tests ", function () {
           expect(await fixtures.csProxy.whitelist()).to.equal(fixtures.treedefiWhitelist.address);
           expect(await fixtures.csProxy.poolSize()).to.equal(fixtures.poolSize);
           expect(await fixtures.csProxy.rewardRate()).to.equal(fixtures.rewardRate);
-          expect(await fixtures.csProxy.minStackingLockTime()).to.equal(fixtures.minStackingLockTime);
+          expect(await fixtures.csProxy.minStakingLockTime()).to.equal(fixtures.minStakingLockTime);
           expect(await fixtures.csProxy.poolDuration()).to.equal(fixtures.poolDuration);
           expect(await fixtures.csProxy.maxStakePerUser()).to.equal(fixtures.maxStakePerUser);
           // expect(await fixtures.csProxy.owner()).to.equal(fixtures.owner.address);
@@ -94,7 +94,7 @@ describe("Treedefi COT Staking Upgradable - Tests ", function () {
       
           expect(stakeInfo.amount).to.equal(stakeAmount);
           expect(stakeInfo.startBlock).to.be.closeTo(blockNumberBeforeStake, 1); // Allow a difference of 1
-          expect(stakeInfo.endBlock).to.be.closeTo(blockNumberBeforeStake + fixtures.minStackingLockTime, 1); // Allow a difference of 1
+          expect(stakeInfo.endBlock).to.be.closeTo(blockNumberBeforeStake + fixtures.minStakingLockTime, 1); // Allow a difference of 1
     
       
           const COTStakingBalance = await fixtures.stakedToken.balanceOf(fixtures.csProxy.address);
@@ -129,7 +129,7 @@ describe("Treedefi COT Staking Upgradable - Tests ", function () {
         
             expect(stakeInfo.amount).to.equal(stakeAmount);
             expect(stakeInfo.startBlock).to.be.closeTo(blockNumberBeforeStake, 1); // Allow a difference of 1
-            expect(stakeInfo.endBlock).to.be.closeTo(blockNumberBeforeStake + fixtures.minStackingLockTime, 1); // Allow a difference of 1
+            expect(stakeInfo.endBlock).to.be.closeTo(blockNumberBeforeStake + fixtures.minStakingLockTime, 1); // Allow a difference of 1
     
         
             const COTStakingBalance = await fixtures.stakedToken.balanceOf(fixtures.csProxy.address);
