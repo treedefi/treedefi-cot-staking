@@ -81,6 +81,72 @@ describe("Treedefi COT Staking Upgradable - Tests ", function () {
           expect(await fixtures.csProxy.poolRewardEndBlock()).to.be.closeTo(endBlock,2);
     
         });
+        
       });
+
+      describe("Stake", function () {
+        it("should stake tokens successfully", async () => {
+          const stakeAmount = ethers.utils.parseEther("500");
+          const blockNumberBeforeStake = await ethers.provider.getBlockNumber();
+          await fixtures.csProxy.connect(fixtures.user).stake(stakeAmount);
+      
+          const stakeInfo = await fixtures.csProxy.getUserStake(fixtures.user.address);
+      
+          expect(stakeInfo.amount).to.equal(stakeAmount);
+          expect(stakeInfo.startBlock).to.be.closeTo(blockNumberBeforeStake, 1); // Allow a difference of 1
+          expect(stakeInfo.endBlock).to.be.closeTo(blockNumberBeforeStake + fixtures.minStackingLockTime, 1); // Allow a difference of 1
+    
+      
+          const COTStakingBalance = await fixtures.stakedToken.balanceOf(fixtures.csProxy.address);
+          expect(COTStakingBalance).to.equal(stakeAmount);
+        });
+
+        it("should fail to stake tokens because user is not whitelisted", async () => {
+          // Enable whitelisting
+          await fixtures.csProxy.connect(fixtures.owner).toggleWhitelist();
+        
+          // Attempt to stake tokens
+          const stakeAmount = ethers.utils.parseEther("500");
+          
+          await expect(fixtures.csProxy.connect(fixtures.user).stake(stakeAmount)).to.be.revertedWith("COTStaking: user is not whitelisted");
+        
+          // Check that no tokens were staked
+          const stakeInfo = await fixtures.csProxy.getUserStake(fixtures.user.address);
+        
+          expect(stakeInfo.amount).to.equal(0);
+        
+          const COTStakingBalance = await fixtures.stakedToken.balanceOf(fixtures.csProxy.address);
+          expect(COTStakingBalance).to.equal(0);
+        });
+        
+    
+        it("should stake tokens again successfully", async () => {
+            const stakeAmount = ethers.utils.parseEther("500");
+            const blockNumberBeforeStake = await ethers.provider.getBlockNumber();
+            await fixtures.csProxy.connect(fixtures.user).stake(stakeAmount);
+        
+            const stakeInfo = await fixtures.csProxy.getUserStake(fixtures.user.address);
+        
+            expect(stakeInfo.amount).to.equal(stakeAmount);
+            expect(stakeInfo.startBlock).to.be.closeTo(blockNumberBeforeStake, 1); // Allow a difference of 1
+            expect(stakeInfo.endBlock).to.be.closeTo(blockNumberBeforeStake + fixtures.minStackingLockTime, 1); // Allow a difference of 1
+    
+        
+            const COTStakingBalance = await fixtures.stakedToken.balanceOf(fixtures.csProxy.address);
+            expect(COTStakingBalance).to.equal(stakeAmount);
+          });
+    
+          it("should correctly compute the user stake capacity", async () => {
+            const stakeAmount = ethers.utils.parseEther("500");
+            await fixtures.csProxy.connect(fixtures.user).stake(stakeAmount);
+        
+            const expectedUserCapacity =  await fixtures.maxStakePerUser.sub(stakeAmount);
+            const userCapacity = await fixtures.csProxy.getRemainingUserStakeCapacity(fixtures.user.address);
+            
+            expect (userCapacity).to.equal(expectedUserCapacity);
+        
+          });
+      });
+      
     
 });
