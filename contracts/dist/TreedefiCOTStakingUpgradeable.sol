@@ -112,6 +112,7 @@ contract TreedefiCOTStakingUpgradeable is
         require(maxStakePerUser_ > 0, "COTStaking: Maximum stake per user must be greater than zero");
         require(maxStakePerUser_ <= poolSize_, "COTStaking: Maximum stake per user must be less than or equal to the pool size");
 
+        blockStartDate = blockStartDate_;
         cotToken = ERC20Upgradeable(cotToken_);
         poolSize = poolSize_;
         rewardRate = rewardRate_;

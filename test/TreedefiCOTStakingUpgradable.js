@@ -23,7 +23,9 @@ async function setup() {
     const minStakingLockTime = 100;
     const poolDuration = 200;
     const maxStakePerUser = ethers.utils.parseEther("5000");
-    const blockStartNumber = await ethers.provider.getBlockNumber();
+
+    const blockNumber = await ethers.provider.getBlockNumber();
+    const blockStartNumber = blockNumber + 5; // 3 blocks from now
 
   const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStakingUpgradeable");
   const COTStaking = await COTStakingInitializable.deploy();
@@ -451,6 +453,9 @@ describe("Treedefi COT Staking Upgradable - Tests ", function () {
         });
     
         it('should revert if initialized again', async function() {
+
+          const blockNumber = await ethers.provider.getBlockNumber();
+          const blockStartNumber = blockNumber + 5; // 3 blocks from now
     
           // Initialize the staking contract
           const poolSize = ethers.utils.parseEther("10000");
@@ -462,6 +467,7 @@ describe("Treedefi COT Staking Upgradable - Tests ", function () {
           await expect(fixtures.csProxy.initialize(
             ethers.constants.AddressZero,
             fixtures.treedefiWhitelist.address,
+            blockStartNumber,
             poolSize,
             rewardRate,
             minStakingLockTime,
