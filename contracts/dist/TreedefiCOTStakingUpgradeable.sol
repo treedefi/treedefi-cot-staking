@@ -182,7 +182,7 @@ contract TreedefiCOTStakingUpgradeable is
      * @dev If the user doesn't have an existing stake, a new stake is created
      * @param amount The amount of COT tokens to stake.
      */
-    function stake(uint256 amount) external nonReentrant {
+    function stake(uint256 amount) external whenNotPaused nonReentrant {
         require(!isWhitelistEnabled || whitelist.isWhitelisted(msg.sender), "COTStaking: user is not whitelisted");
         require(block.number >= blockStartDate, "COTStaking: Pool is not started yet");
         require(amount > 0, "COTStaking: Amount must be greater than zero");
@@ -220,7 +220,7 @@ contract TreedefiCOTStakingUpgradeable is
     * transfers the unstaked tokens and rewards to the user, and updates the total staked amount and stake info.
     */
     
-    function unstake() external nonReentrant {
+    function unstake() external whenNotPaused nonReentrant {
         Stake storage stake_ = _stakes[msg.sender];
 
         require(stake_.amount > 0, "COTStaking: No active stake");
@@ -298,7 +298,24 @@ contract TreedefiCOTStakingUpgradeable is
     return pendingRewards;
 }
 
-  /**
+    /**
+     * @notice pause and unpause functions
+     * @dev Requires PAUSER_ROLE to be able pause  the contract
+     */
+    function pauseContract() external onlyRole(PAUSER_ROLE) {
+        _pause();
+    }
+
+     /**
+     * @notice unpause function
+     * @dev Requires PAUSER_ROLE to be able to unpause the contract
+     */
+
+    function unpauseContract() external onlyRole(PAUSER_ROLE) {
+        _unpause();
+    }
+        
+    /**
      * @dev Authorizes a new implementation for upgrading the contract
      * @param newImplementation The address of the new implementation
      * @dev Requires UPGRADER_ROLE

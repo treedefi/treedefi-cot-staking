@@ -2,7 +2,7 @@ const hre = require("hardhat");
 const ethers = hre.ethers;
 const { utils } = require("ethers");
 
-const STAKING_PROXY_ADDRESS = "0x521Dd34Eba88692ab456F940619BB3F7AD315380"; // change with mainnet one!
+const STAKING_PROXY_ADDRESS = "0x37c66734e202c307851C63eDdb8A511cf5e11446"; // change with mainnet one!
 
 const { defaultAbiCoder, keccak256, solidityPack } = require("ethers/lib/utils");
 
