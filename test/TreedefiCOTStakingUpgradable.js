@@ -380,6 +380,55 @@ describe("Treedefi COT Staking Upgradable - Tests ", function () {
           
           
       });
+
+      describe("updatePool", function () {
+        it("should update the pool parameters correctly", async () => {
+          // New pool parameters
+          const newRewardRate = 20;
+          const newPoolSize = ethers.utils.parseEther("20000");
+          const newMaxStakePerUser = ethers.utils.parseEther("10000");
+          const newPoolDuration = 300;
+          const newMinStakingLockTime = 200;
+      
+          // Call the updatePool function
+          await fixtures.csProxy.connect(fixtures.owner).updatePool(newRewardRate, newPoolSize, newMaxStakePerUser, newPoolDuration, newMinStakingLockTime);
+      
+          // Verify the new parameters
+          expect(await fixtures.csProxy.rewardRate()).to.equal(newRewardRate);
+          expect(await fixtures.csProxy.poolSize()).to.equal(newPoolSize);
+          expect(await fixtures.csProxy.maxStakePerUser()).to.equal(newMaxStakePerUser);
+          expect(await fixtures.csProxy.poolDuration()).to.equal(newPoolDuration);
+          expect(await fixtures.csProxy.minStakingLockTime()).to.equal(newMinStakingLockTime);
+        });
+      
+        it("should not allow non-admins to update the pool parameters", async () => {
+
+          // Get the DEFAULT_ADMIN_ROLE from the contract
+         const DEFAULT_ADMIN_ROLE = await fixtures.csProxy.DEFAULT_ADMIN_ROLE();
+          // Construct the expected revert message
+         const expectedRevertReason = `AccessControl: account ${fixtures.user.address.toLowerCase()} is missing role ${DEFAULT_ADMIN_ROLE}`;
+
+          // New pool parameters
+          const newRewardRate = 20;
+          const newPoolSize = ethers.utils.parseEther("20000");
+          const newMaxStakePerUser = ethers.utils.parseEther("10000");
+          const newPoolDuration = 300;
+          const newMinStakingLockTime = 200;
+      
+          // Try to call the updatePool function as a non-admin
+          await expect(
+            fixtures.csProxy.connect(fixtures.user).updatePool(newRewardRate, newPoolSize, newMaxStakePerUser, newPoolDuration, newMinStakingLockTime)
+          ).to.be.revertedWith(expectedRevertReason);
+      
+          // The parameters should not have changed
+          expect(await fixtures.csProxy.rewardRate()).to.equal(fixtures.rewardRate);
+          expect(await fixtures.csProxy.poolSize()).to.equal(fixtures.poolSize);
+          expect(await fixtures.csProxy.maxStakePerUser()).to.equal(fixtures.maxStakePerUser);
+          expect(await fixtures.csProxy.poolDuration()).to.equal(fixtures.poolDuration);
+          expect(await fixtures.csProxy.minStakingLockTime()).to.equal(fixtures.minStakingLockTime);
+        });
+      });
+      
     
       describe("Negative tests", function () {
         // Stake negative test cases

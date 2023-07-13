@@ -144,6 +144,32 @@ contract TreedefiCOTStakingUpgradeable is
     }
 
     /**
+     * @dev Updates the reward rate, pool size, and maximum stake per user.
+     * Can only be called by the contract owner.
+     * @param newRewardRate The new reward rate to be set.
+     * @param newPoolSize The new pool size to be set.
+     * @param newMaxStakePerUser The new maximum stake per user to be set.
+     */
+
+    function updatePool(uint256 newRewardRate, 
+                        uint256 newPoolSize, 
+                        uint256 newMaxStakePerUser, 
+                        uint256 newPoolDuration,
+                        uint256 newMinStakingLockTime
+                        ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(newRewardRate > 0 && newRewardRate < 100, "COTStaking: Reward rate must be between 1 and 99");
+        require(newPoolSize > 0, "COTStaking: Pool size should be greater than 0 COT");
+        require(newMaxStakePerUser > 0, "COTStaking: Stake per user should be greater than 0 COT");
+        require(newPoolDuration > 0, "COTStaking: Pool duration should be greater than 0 blocks");
+        require(newMinStakingLockTime > 0, "COTStaking: Minimum staking lock time should be greater than 0 blocks");
+        rewardRate = newRewardRate;
+        poolSize = newPoolSize;
+        maxStakePerUser = newMaxStakePerUser;
+        poolDuration = newPoolDuration;
+        minStakingLockTime = newMinStakingLockTime;
+    }
+
+    /**
      * @notice Stakes a specified amount of COT tokens or increases an existing stake.
      * @dev If the user has an existing stake, the function updates the staked amount, endBlock, and earnedRewards.
      * @dev If the user doesn't have an existing stake, a new stake is created
