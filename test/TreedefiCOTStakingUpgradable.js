@@ -386,6 +386,10 @@ describe("Treedefi COT Staking Upgradable - Tests ", function () {
 
       describe("updatePool", function () {
         it("should update the pool parameters correctly", async () => {
+
+          const blockNumber = await ethers.provider.getBlockNumber();
+          const blockStartNumber = blockNumber + 5; // 3 blocks from now
+
           // New pool parameters
           const newRewardRate = 20;
           const newPoolSize = ethers.utils.parseEther("20000");
@@ -394,7 +398,7 @@ describe("Treedefi COT Staking Upgradable - Tests ", function () {
           const newMinStakingLockTime = 200;
       
           // Call the updatePool function
-          await fixtures.csProxy.connect(fixtures.owner).updatePool(newRewardRate, newPoolSize, newMaxStakePerUser, newPoolDuration, newMinStakingLockTime);
+          await fixtures.csProxy.connect(fixtures.owner).updatePool(newRewardRate, blockStartNumber, newPoolSize, newMaxStakePerUser, newPoolDuration, newMinStakingLockTime);
       
           // Verify the new parameters
           expect(await fixtures.csProxy.rewardRate()).to.equal(newRewardRate);
@@ -412,6 +416,9 @@ describe("Treedefi COT Staking Upgradable - Tests ", function () {
          const expectedRevertReason = `AccessControl: account ${fixtures.user.address.toLowerCase()} is missing role ${DEFAULT_ADMIN_ROLE}`;
 
           // New pool parameters
+          const blockNumber = await ethers.provider.getBlockNumber();
+          const newStartBlock = blockNumber + 5; // 3 blocks from now
+
           const newRewardRate = 20;
           const newPoolSize = ethers.utils.parseEther("20000");
           const newMaxStakePerUser = ethers.utils.parseEther("10000");
@@ -420,7 +427,7 @@ describe("Treedefi COT Staking Upgradable - Tests ", function () {
       
           // Try to call the updatePool function as a non-admin
           await expect(
-            fixtures.csProxy.connect(fixtures.user).updatePool(newRewardRate, newPoolSize, newMaxStakePerUser, newPoolDuration, newMinStakingLockTime)
+            fixtures.csProxy.connect(fixtures.user).updatePool(newRewardRate, newStartBlock, newPoolSize, newMaxStakePerUser, newPoolDuration, newMinStakingLockTime)
           ).to.be.revertedWith(expectedRevertReason);
       
           // The parameters should not have changed

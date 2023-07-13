@@ -156,12 +156,14 @@ contract TreedefiCOTStakingUpgradeable is
      */
 
     function updatePool(uint256 newRewardRate, 
+                        uint256 newStartBlock,
                         uint256 newPoolSize, 
                         uint256 newMaxStakePerUser, 
                         uint256 newPoolDuration,
                         uint256 newMinStakingLockTime
                         ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(newRewardRate > 0 && newRewardRate < 100, "COTStaking: Reward rate must be between 1 and 99");
+        require (newStartBlock >= block.number, "COTStaking: Start block should be greater than current block number");
         require(newPoolSize > 0, "COTStaking: Pool size should be greater than 0 COT");
         require(newMaxStakePerUser > 0, "COTStaking: Stake per user should be greater than 0 COT");
         require(newPoolDuration > 0, "COTStaking: Pool duration should be greater than 0 blocks");
@@ -171,7 +173,7 @@ contract TreedefiCOTStakingUpgradeable is
         maxStakePerUser = newMaxStakePerUser;
         poolDuration = newPoolDuration;
         minStakingLockTime = newMinStakingLockTime;
-        poolRewardEndBlock = block.number + poolDuration; // update the pool end block
+        poolRewardEndBlock = newStartBlock + poolDuration; // update the pool end block
     }
 
     /**
