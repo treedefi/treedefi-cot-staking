@@ -693,10 +693,24 @@ describe("Treedefi COT Staking Upgradable - Tests ", function () {
               .to.be.revertedWith("COTStaking: This pool is finished");
       });
     
-    
-      
-    
-      });
+});
+
+describe("Upgrade", function () {
+  it("should upgrade the contract to V2 and call the new function", async function () {
+    // Create a new instance of the V2 contract
+    const TreedefiCOTStakingV2 = await ethers.getContractFactory("TreedefiCOTStakingUpgradeableV2");
+    // Upgrade the existing proxy contract
+    const csProxyV2 = await upgrades.upgradeProxy(fixtures.csProxy.address, TreedefiCOTStakingV2);
+
+    // Call the new function in the upgraded contract
+    const newValue = 5000;
+    await csProxyV2.dummyFunction(newValue);
+
+    const dummyVariableValue = await csProxyV2.dummyVariable();
+    expect(dummyVariableValue).to.equal(newValue);
+  });
+});
+
       
     
       
