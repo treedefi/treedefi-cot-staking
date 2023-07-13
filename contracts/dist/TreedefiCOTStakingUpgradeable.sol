@@ -48,6 +48,7 @@ contract TreedefiCOTStakingUpgradeable is
     ERC20Upgradeable public cotToken;
     TreedefiWhitelist public whitelist;
     
+    uint256 public blockStartDate; // start date of the pool
     uint256 public poolSize; // maximum COT allowed to be staked in the pool
     uint256 public rewardRate; // reward rate in percentage 
     uint256 public minStakingLockTime; // minimum locking time in blocks
@@ -56,10 +57,10 @@ contract TreedefiCOTStakingUpgradeable is
 
 
     uint256 public poolRewardEndBlock; // end block of the pool
-    uint256 private _totalStaked;
-    uint256 private _lastBlockReward;
+    uint256 private _totalStaked; // total amount of COT staked in the pool
+    uint256 private _lastBlockReward; // last block number when rewards are calculated
 
-    bool public isWhitelistEnabled;
+    bool public isWhitelistEnabled; // flag to check if whitelist is enabled
 
     /// @dev Represents an individual stake in the contract
     struct Stake {
@@ -99,7 +100,6 @@ contract TreedefiCOTStakingUpgradeable is
         uint256 poolDuration_,
         uint256 maxStakePerUser_
     ) initializer public {
-        // require(!initialized, "COTStaking: already initialized");
 
         // requirement checks
         require(cotToken_ != address(0), "COTStaking: COT token address must not be zero");
@@ -118,7 +118,6 @@ contract TreedefiCOTStakingUpgradeable is
         maxStakePerUser = maxStakePerUser_;
 
         poolRewardEndBlock = block.number + poolDuration_;
-        // initialized = true;
         whitelist = TreedefiWhitelist(whitelist_);
         isWhitelistEnabled = false;
 
