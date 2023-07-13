@@ -23,6 +23,7 @@ async function setup() {
     const minStakingLockTime = 100;
     const poolDuration = 200;
     const maxStakePerUser = ethers.utils.parseEther("5000");
+    const blockStartNumber = await ethers.provider.getBlockNumber();
 
   const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStakingUpgradeable");
   const COTStaking = await COTStakingInitializable.deploy();
@@ -31,7 +32,7 @@ async function setup() {
   // its deployed() method, which happens once its transaction has been
   // mined.
 
-  const csProxy = await upgrades.deployProxy(COTStakingInitializable, [stakedToken.address, treedefiWhitelist.address, poolSize, rewardRate, minStakingLockTime, poolDuration, maxStakePerUser], { initializer: "initialize" });
+  const csProxy = await upgrades.deployProxy(COTStakingInitializable, [stakedToken.address, treedefiWhitelist.address, blockStartNumber, poolSize, rewardRate, minStakingLockTime, poolDuration, maxStakePerUser], { initializer: "initialize" });
   await csProxy.deployed();
 
   await stakedToken.transfer(user.address, ethers.utils.parseEther("1000"));

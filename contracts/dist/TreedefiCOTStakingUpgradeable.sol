@@ -94,6 +94,7 @@ contract TreedefiCOTStakingUpgradeable is
     function initialize(
         address cotToken_,
         address whitelist_,
+        uint256 blockStartDate_,
         uint256 poolSize_,
         uint256 rewardRate_,
         uint256 minStakingLockTime_,
@@ -102,6 +103,7 @@ contract TreedefiCOTStakingUpgradeable is
     ) initializer public {
 
         // requirement checks
+        require(blockStartDate_ > block.number, "COTStaking: Block start date must be in the future");
         require(cotToken_ != address(0), "COTStaking: COT token address must not be zero");
         require(poolSize_ > 0, "COTStaking: Pool size must be greater than zero");
         require(rewardRate_ > 0 && rewardRate_ < 100, "COTStaking: Reward rate must be greater than zero and less than 100");
@@ -143,11 +145,13 @@ contract TreedefiCOTStakingUpgradeable is
     }
 
     /**
-     * @dev Updates the reward rate, pool size, and maximum stake per user.
-     * Can only be called by the contract owner.
-     * @param newRewardRate The new reward rate to be set.
-     * @param newPoolSize The new pool size to be set.
-     * @param newMaxStakePerUser The new maximum stake per user to be set.
+     * @dev Updates the reward rate, pool size, maximum stake per user, pool duration, and minimum staking lock time.
+     * @dev Can only be called by the contract owner
+     * @param newRewardRate The new reward rate to be set
+     * @param newPoolSize The new pool size to be set
+     * @param newMaxStakePerUser The new maximum stake per user to be set
+     * @param newPoolDuration The new pool duration to be set
+     * @param newMinStakingLockTime The new minimum staking lock time to be set
      */
 
     function updatePool(uint256 newRewardRate, 
@@ -166,6 +170,7 @@ contract TreedefiCOTStakingUpgradeable is
         maxStakePerUser = newMaxStakePerUser;
         poolDuration = newPoolDuration;
         minStakingLockTime = newMinStakingLockTime;
+        poolRewardEndBlock = block.number + poolDuration; // update the pool end block
     }
 
     /**
@@ -176,6 +181,7 @@ contract TreedefiCOTStakingUpgradeable is
      */
     function stake(uint256 amount) external nonReentrant {
         require(!isWhitelistEnabled || whitelist.isWhitelisted(msg.sender), "COTStaking: user is not whitelisted");
+        require(block.number >= blockStartDate, "COTStaking: Pool is not started yet");
         require(amount > 0, "COTStaking: Amount must be greater than zero");
         require( (_totalStaked + amount) <= poolSize, "COTStaking: Pool size limit reached");
         require (block.number < poolRewardEndBlock, "COTStaking: This pool is finished");
