@@ -4,7 +4,8 @@ require("@nomiclabs/hardhat-ethers");
 require('hardhat-docgen');
 require("dotenv").config();
 
-const privateKey = process.env.DEPLOYER_PRIVATE_KEY;
+const testnetPrivateKey = process.env.TESTNET_DEPLOYER_PRIVATE_KEY;
+const mainnetPrivateKey = process.env.MAINNET_DEPLOYER_PRIVATE_KEY;
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -21,7 +22,7 @@ module.exports = {
     },
     binanceTestnet: {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
-      accounts: [privateKey],
+      accounts: [testnetPrivateKey],
       chainId: 97,
       gas: "auto",
       gasPrice: "auto",
@@ -29,7 +30,7 @@ module.exports = {
     },
     binanceMainnet: {
       url: "https://bsc-dataseed.binance.org",
-      accounts: [privateKey],
+      accounts: [mainnetPrivateKey],
       chainId: 56,
       gas: "auto",
       gasPrice: "auto",

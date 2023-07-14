@@ -3,22 +3,21 @@ const { ethers, upgrades } = require("hardhat");
 async function main() {
   const [deployer] = await ethers.getSigners();
 
-  console.log("Deploying Upgradable Staking Contract with the account:", deployer.address);
+  console.log("MAINNET- Deploying Upgradable Staking Contract with the account:", deployer.address);
 
-  const cotContractAddress = "0xBfabDFEE039CC43d516f3D5eA88FbA9a4d7D12e9";
-  const whitelistContractAddress = "0xa00f384c95B3507558316E10a9FD03f17700f2B3";
-  const blockNumber = await ethers.provider.getBlockNumber();
-  const blockStartNumber = blockNumber + 5; // 5 blocks from now
+  const cotContractAddress = "0x56B37783f1847997242A7b181f9F50A680319Cc5";
+  const whitelistContractAddress = "0x90FAb7F9B9e70ff4B992297E7670a28479FaCD36";
+  const blockStartNumber = 30043000 // estimated block number for Mon Jul 17 2023 15:19:50 GMT+0200
 
-  const poolSize = ethers.utils.parseEther("10000");
+  const poolSize = ethers.utils.parseEther("100000"); //100K COT
   const rewardRate = 20; // 20% per year APR (bnb chain)
-  const minStackingLockTime = 40; // 40 blocks = 2 minutes (bnb chain)
+  const minStackingLockTime = 876000; // 876000 blocks = 1 month (bnb chain)
   const poolDuration = 10512000;  // 10512000 blocks = 1 year
-  const maxStakePerUser = ethers.utils.parseEther("250"); // 250 COT
+  const maxStakePerUser = ethers.utils.parseEther("10000"); // 10K COT per user 
  
 
   const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStakingUpgradeable");
-//   const COTStaking = await COTStakingInitializable.deploy();
+  // const COTStaking = await COTStakingInitializable.deploy();
 
   const csProxy = await upgrades.deployProxy(COTStakingInitializable, [cotContractAddress, whitelistContractAddress, blockStartNumber, poolSize, rewardRate, minStackingLockTime, poolDuration, maxStakePerUser], { initializer: "initialize" });
   await csProxy.deployed();
