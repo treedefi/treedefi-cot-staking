@@ -1,6 +1,6 @@
 // ITreedefiCOTStakingUpgradeable.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.18;
 pragma abicoder v2;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
