@@ -3,6 +3,7 @@
 pragma solidity ^0.8.18;
 
 import "./TreedefiCOTStakingUpgradeable.sol";
+import "./ITreedefiCOTStakingUpgradeable.sol";
 
 contract TreedefiCOTStakingUpgradeableV2 is TreedefiCOTStakingUpgradeable {
     
