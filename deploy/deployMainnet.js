@@ -7,7 +7,7 @@ async function main() {
 
   const cotContractAddress = "0x56B37783f1847997242A7b181f9F50A680319Cc5";
   const whitelistContractAddress = "0x90FAb7F9B9e70ff4B992297E7670a28479FaCD36";
-  const blockStartNumber = 30043000 // estimated block number for Mon Jul 17 2023 15:19:50 GMT+0200
+  const blockStartNumber = 30043000 // MAINNET - estimated block number for Mon Jul 17 2023 15:19:50 GMT+0200
 
   const poolSize = ethers.utils.parseEther("100000"); //100K COT
   const rewardRate = 20; // 20% per year APR (bnb chain)

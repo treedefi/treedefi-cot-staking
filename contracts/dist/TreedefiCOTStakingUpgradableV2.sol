@@ -13,4 +13,16 @@ contract TreedefiCOTStakingUpgradeableV2 is TreedefiCOTStakingUpgradeable {
     function dummyFunction(uint256 newValue) public onlyRole(DEFAULT_ADMIN_ROLE) {
         dummyVariable = newValue;
     }
+
+    // Override the function from the parent contract
+    /**
+     * @notice Returns the stake details for a specific user.
+     * @param user The address of the user.
+     * @return stake The user's stake details.
+     */
+
+    function getUserStake(address user) external override view returns (Stake memory) {
+        return _stakes[user];
+    }
+    
 }

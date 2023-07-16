@@ -57,8 +57,8 @@ contract TreedefiCOTStakingUpgradeable is
 
 
     uint256 public poolRewardEndBlock; // end block of the pool
-    uint256 private _totalStaked; // total amount of COT staked in the pool
-    uint256 private _lastBlockReward; // last block number when rewards are calculated
+    uint256 internal _totalStaked; // total amount of COT staked in the pool
+    uint256 internal _lastBlockReward; // last block number when rewards are calculated
 
     bool public isWhitelistEnabled; // flag to check if whitelist is enabled
 
@@ -71,7 +71,7 @@ contract TreedefiCOTStakingUpgradeable is
     }
 
     /// @dev Maps an address to its current stake
-    mapping(address => Stake) private _stakes;
+    mapping(address => Stake) internal _stakes;
 
     /// @dev Emitted when a user stakes tokens
     event Staked(address indexed user, uint256 amount);

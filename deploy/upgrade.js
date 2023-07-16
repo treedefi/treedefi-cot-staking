@@ -4,9 +4,9 @@ async function main() {
   const [deployer] = await ethers.getSigners();
 
   console.log("UPGRADE Upgradable Staking Contract with the account:", deployer.address);
-  const csProxy = "0x37c66734e202c307851C63eDdb8A511cf5e11446";
+  const csProxy = "0x36e7b7806bBc9B5aE648446910a5C75499900fcd";
 
-  const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStakingUpgradeable");
+  const COTStakingInitializable = await ethers.getContractFactory("TreedefiCOTStakingUpgradeableV2");
   const csProxyUpgraded = await upgrades.upgradeProxy(csProxy, COTStakingInitializable);
 
   console.log("COTStakingUpgradeable upgraded to:", csProxyUpgraded.address);
