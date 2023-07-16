@@ -161,7 +161,7 @@ contract TreedefiCOTStakingUpgradeable is
                         uint256 newMaxStakePerUser, 
                         uint256 newPoolDuration,
                         uint256 newMinStakingLockTime
-                        ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+                        ) external virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         require(newRewardRate > 0 && newRewardRate < 100, "COTStaking: Reward rate must be between 1 and 99");
         require (newStartBlock >= block.number, "COTStaking: Start block should be greater than current block number");
         require(newPoolSize > 0, "COTStaking: Pool size should be greater than 0 COT");
@@ -182,7 +182,7 @@ contract TreedefiCOTStakingUpgradeable is
      * @dev If the user doesn't have an existing stake, a new stake is created
      * @param amount The amount of COT tokens to stake.
      */
-    function stake(uint256 amount) external whenNotPaused nonReentrant {
+    function stake(uint256 amount) external virtual whenNotPaused nonReentrant {
         require(!isWhitelistEnabled || whitelist.isWhitelisted(msg.sender), "COTStaking: user is not whitelisted");
         require(block.number >= blockStartDate, "COTStaking: Pool is not started yet");
         require(amount > 0, "COTStaking: Amount must be greater than zero");
@@ -220,7 +220,7 @@ contract TreedefiCOTStakingUpgradeable is
     * transfers the unstaked tokens and rewards to the user, and updates the total staked amount and stake info.
     */
     
-    function unstake() external whenNotPaused nonReentrant {
+    function unstake() external virtual whenNotPaused nonReentrant {
         Stake storage stake_ = _stakes[msg.sender];
 
         require(stake_.amount > 0, "COTStaking: No active stake");
@@ -247,7 +247,7 @@ contract TreedefiCOTStakingUpgradeable is
      * @return The remaining stake capacity.
      */
 
-    function getRemainingStakeCapacity() public view returns (uint256) {
+    function getRemainingStakeCapacity() external virtual view returns (uint256) {
         return poolSize - _totalStaked;
     }
 
@@ -257,7 +257,7 @@ contract TreedefiCOTStakingUpgradeable is
      * @return stake The user's stake details.
      */
 
-    function getUserStake(address user) external view returns (Stake memory) {
+    function getUserStake(address user) external virtual view returns (Stake memory) {
         return _stakes[user];
     }
 
@@ -267,7 +267,7 @@ contract TreedefiCOTStakingUpgradeable is
      * @return The user's remaining capacity amount
      */
 
-    function getRemainingUserStakeCapacity(address user) external view returns (uint256) {
+    function getRemainingUserStakeCapacity(address user) external virtual view returns (uint256) {
         return maxStakePerUser - _stakes[user].amount;
     }
 

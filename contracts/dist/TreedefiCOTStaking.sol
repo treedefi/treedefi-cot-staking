@@ -114,7 +114,7 @@ contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
     *         can interact with the contract. If it is disabled, all addresses can interact with the contract.
     */
 
-    function toggleWhitelist() external virtual onlyOwner {
+    function toggleWhitelist() external onlyOwner {
         isWhitelistEnabled = !isWhitelistEnabled;
     }
 
@@ -124,7 +124,7 @@ contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
      * @dev If the user doesn't have an existing stake, a new stake is created
      * @param amount The amount of COT tokens to stake.
      */
-    function stake(uint256 amount) external virtual nonReentrant {
+    function stake(uint256 amount) external nonReentrant {
         require(!isWhitelistEnabled || whitelist.isWhitelisted(msg.sender), "COTStaking: user is not whitelisted");
         require(amount > 0, "COTStaking: Amount must be greater than zero");
         require(_totalStaked.add(amount) <= poolSize, "COTStaking: Pool size limit reached");
@@ -162,7 +162,7 @@ contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
     * transfers the unstaked tokens and rewards to the user, and updates the total staked amount and stake info.
     */
     
-    function unstake() external virtual nonReentrant {
+    function unstake() external nonReentrant {
         Stake storage stake_ = _stakes[msg.sender];
 
         require(stake_.amount > 0, "COTStaking: No active stake");
@@ -189,7 +189,7 @@ contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
      * @return The remaining stake capacity.
      */
 
-    function getRemainingStakeCapacity() public view virtual returns (uint256) {
+    function getRemainingStakeCapacity() public view returns (uint256) {
         return poolSize.sub(_totalStaked);
     }
 
@@ -199,7 +199,7 @@ contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
      * @return stake The user's stake details.
      */
 
-    function getUserStake(address user) external view virtual returns (Stake memory) {
+    function getUserStake(address user) external view returns (Stake memory) {
         return _stakes[user];
     }
 
@@ -209,7 +209,7 @@ contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
      * @return The user's remaining capacity amount
      */
 
-    function getRemainingUserStakeCapacity(address user) external view virtual returns (uint256) {
+    function getRemainingUserStakeCapacity(address user) external view returns (uint256) {
         return maxStakePerUser.sub(_stakes[user].amount);
     }
 
@@ -219,7 +219,7 @@ contract TreedefiCOTStaking is Ownable, ReentrancyGuard {
      * @return pendingRewards The pending rewards for the specified user.
      */
 
-    function userPendingRewards(address user) public view virtual returns (uint256 pendingRewards) {
+    function userPendingRewards(address user) public view returns (uint256 pendingRewards) {
     Stake storage stake_ = _stakes[user];
 
     if (stake_.amount > 0) {
