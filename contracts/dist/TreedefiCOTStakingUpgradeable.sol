@@ -13,6 +13,7 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 // Treedefi imports
+import {ITreedefiCOTStakingUpgradeable} from "./ITreedefiCOTStakingUpgradeable.sol";
 import {TreedefiWhitelist} from "./TreedefiWhitelist.sol";
 
 
@@ -26,6 +27,7 @@ import {TreedefiWhitelist} from "./TreedefiWhitelist.sol";
 */ 
 
 contract TreedefiCOTStakingUpgradeable is 
+    ITreedefiCOTStakingUpgradeable,
     Initializable,
     ReentrancyGuardUpgradeable, 
     PausableUpgradeable, 
@@ -62,25 +64,8 @@ contract TreedefiCOTStakingUpgradeable is
 
     bool public isWhitelistEnabled; // flag to check if whitelist is enabled
 
-    /// @dev Represents an individual stake in the contract
-    struct Stake {
-        uint256 amount;       // The amount of tokens staked
-        uint256 startBlock;   // The block number when the stake was created
-        uint256 endBlock;     // The block number when the stake is set to end
-        uint256 earnedRewards;// The total rewards earned from this stake
-    }
-
     /// @dev Maps an address to its current stake
     mapping(address => Stake) internal _stakes;
-
-    /// @dev Emitted when a user stakes tokens
-    event Staked(address indexed user, uint256 amount);
-
-    /// @dev Emitted when a user unstakes tokens
-    event Unstaked(address indexed user, uint256 amount);
-
-    /// @dev Emitted when a user claims their reward tokens
-    event RewardClaimed(address indexed user, uint256 amount);
 
    /** 
     * @notice Initializes the staking contract
