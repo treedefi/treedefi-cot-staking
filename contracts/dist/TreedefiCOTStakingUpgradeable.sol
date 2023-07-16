@@ -1,8 +1,7 @@
 // TreedefiCOTStakingUpgradeable.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.18;
 pragma abicoder v2;
-import "hardhat/console.sol";
 
 // OZ upgradable imports
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
@@ -13,6 +12,7 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 // Treedefi imports
+import {ITreedefiCOTStakingUpgradeable} from "./ITreedefiCOTStakingUpgradeable.sol";
 import {TreedefiWhitelist} from "./TreedefiWhitelist.sol";
 
 
@@ -26,6 +26,7 @@ import {TreedefiWhitelist} from "./TreedefiWhitelist.sol";
 */ 
 
 contract TreedefiCOTStakingUpgradeable is 
+    ITreedefiCOTStakingUpgradeable,
     Initializable,
     ReentrancyGuardUpgradeable, 
     PausableUpgradeable, 
@@ -62,36 +63,27 @@ contract TreedefiCOTStakingUpgradeable is
 
     bool public isWhitelistEnabled; // flag to check if whitelist is enabled
 
-    /// @dev Represents an individual stake in the contract
-    struct Stake {
-        uint256 amount;       // The amount of tokens staked
-        uint256 startBlock;   // The block number when the stake was created
-        uint256 endBlock;     // The block number when the stake is set to end
-        uint256 earnedRewards;// The total rewards earned from this stake
-    }
-
     /// @dev Maps an address to its current stake
     mapping(address => Stake) internal _stakes;
 
-    /// @dev Emitted when a user stakes tokens
-    event Staked(address indexed user, uint256 amount);
-
-    /// @dev Emitted when a user unstakes tokens
-    event Unstaked(address indexed user, uint256 amount);
-
-    /// @dev Emitted when a user claims their reward tokens
-    event RewardClaimed(address indexed user, uint256 amount);
-
-    /** 
+   /** 
     * @notice Initializes the staking contract
-    * @param cotToken_ The address of the COT token
-    * @param poolSize_ The total size of the staking pool as number of token accepted
-    * @param rewardRate_ The rate at which rewards are earned as a percentage
-    * @param minStakingLockTime_ The minimum lock time for staking as block numbers
-    * @param poolDuration_ The duration of the staking pool as block numbers
-    * */ 
-
-    function initialize(
+    * @param cotToken_ The address of the COT token. Must be a valid ERC20 address.
+    * @param whitelist_ The address of the whitelist contract.
+    * @param blockStartDate_ The block number from which the staking pool will start accepting stakes.
+    *                        Must be a future block number.
+    * @param poolSize_ The total number of tokens that the staking pool will accept.
+    *                  Must be greater than zero.
+    * @param rewardRate_ The rate of rewards, represented as a percentage.
+    *                    Must be greater than zero and less than 100.
+    * @param minStakingLockTime_ The minimum number of blocks for which a stake must be locked.
+    *                            Must be greater than zero.
+    * @param poolDuration_ The duration of the staking pool, represented in blocks.
+    *                      Must be greater than minStakingLockTime_.
+    * @param maxStakePerUser_ The maximum number of tokens that a single user can stake in the pool.
+    *                         Must be greater than zero and less than or equal to poolSize_.
+    */
+function initialize(
         address cotToken_,
         address whitelist_,
         uint256 blockStartDate_,
@@ -101,35 +93,33 @@ contract TreedefiCOTStakingUpgradeable is
         uint256 poolDuration_,
         uint256 maxStakePerUser_
     ) initializer public {
-
-        // requirement checks
+        // Perform input validity checks
         require(blockStartDate_ > block.number, "COTStaking: Block start date must be in the future");
         require(cotToken_ != address(0), "COTStaking: COT token address must not be zero");
         require(poolSize_ > 0, "COTStaking: Pool size must be greater than zero");
-        require(rewardRate_ > 0 && rewardRate_ < 100, "COTStaking: Reward rate must be greater than zero and less than 100");
-        require(minStakingLockTime_ > 0, "COTStaking: Minimum stacking lock time must be greater than zero");
-        require(poolDuration_ > minStakingLockTime_, "COTStaking: Pool duration must be greater than the minimum stacking lock time");
-        require(maxStakePerUser_ > 0, "COTStaking: Maximum stake per user must be greater than zero");
-        require(maxStakePerUser_ <= poolSize_, "COTStaking: Maximum stake per user must be less than or equal to the pool size");
+        require(rewardRate_ > 0 && rewardRate_ < 100, "COTStaking: Reward rate must be between 0 (exclusive) and 100 (exclusive)");
+        require(minStakingLockTime_ > 0, "COTStaking: Minimum staking lock time must be greater than zero");
+        require(poolDuration_ > minStakingLockTime_, "COTStaking: Pool duration must exceed minimum staking lock time");
+        require(maxStakePerUser_ > 0 && maxStakePerUser_ <= poolSize_, "COTStaking: Maximum stake per user must be within (0, poolSize_]");
 
-        blockStartDate = blockStartDate_;
+        // Assign the input parameters to state variables
         cotToken = ERC20Upgradeable(cotToken_);
+        whitelist = TreedefiWhitelist(whitelist_);
+        blockStartDate = blockStartDate_;
         poolSize = poolSize_;
         rewardRate = rewardRate_;
         minStakingLockTime = minStakingLockTime_;
         poolDuration = poolDuration_;
         maxStakePerUser = maxStakePerUser_;
-
-        poolRewardEndBlock = block.number + poolDuration_;
-        whitelist = TreedefiWhitelist(whitelist_);
+        poolRewardEndBlock = blockStartDate_ + poolDuration_;
         isWhitelistEnabled = false;
 
-        // Access control management
+        // Assign the roles to the message sender
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(PAUSER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
-
     }
+
 
     /**
     * @dev Toggles the state of the whitelist functionality. 

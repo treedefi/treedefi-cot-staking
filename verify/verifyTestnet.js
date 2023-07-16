@@ -2,7 +2,7 @@ const hre = require("hardhat");
 const ethers = hre.ethers;
 const { utils } = require("ethers");
 
-const STAKING_PROXY_ADDRESS = "0x36e7b7806bBc9B5aE648446910a5C75499900fcd"; 
+const STAKING_PROXY_ADDRESS = "0x50F8bf0a691Ef079651491D738F1f5CB75ed667c"; 
 
 const { defaultAbiCoder, keccak256, solidityPack } = require("ethers/lib/utils");
 
@@ -17,7 +17,7 @@ async function main() {
   console.log("Connected to network:", network.name);
   console.log("Chain ID:", network.chainId);
 
-  const contractName = "contracts/dist/TreedefiCOTStakingUpgradableV2.sol:TreedefiCOTStakingUpgradeableV2"
+  const contractName = "contracts/dist/TreedefiCOTStakingUpgradeableV2.sol:TreedefiCOTStakingUpgradeableV2"
 
   try {
      // get the contract factory

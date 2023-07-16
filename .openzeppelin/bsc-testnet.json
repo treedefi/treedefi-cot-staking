@@ -20,6 +20,21 @@
       "address": "0x36e7b7806bBc9B5aE648446910a5C75499900fcd",
       "txHash": "0x479f04bf3a37c8736302a98aa258510d42394a46bbb2b7c625a71291682b593e",
       "kind": "uups"
+    },
+    {
+      "address": "0x25E165C62a082fC0C91232233c3148D7Bf01c3a7",
+      "txHash": "0xb964b37ab355142c6f31c4f5fa916431e69586b16f280ab3da02d4f099e4d47a",
+      "kind": "uups"
+    },
+    {
+      "address": "0xF6C4ecB1688143E7AD7B97aa7FDb8A5eb339aeA3",
+      "txHash": "0xf8294fb1eead73a0321cefa01cfd7f7b9af237b6986dc4ee01123c71062833c5",
+      "kind": "uups"
+    },
+    {
+      "address": "0x50F8bf0a691Ef079651491D738F1f5CB75ed667c",
+      "txHash": "0x60480d9bfb0657ae5b0f02d2f2d50f92df960962ae5b2564e7543feaf2ceb0ea",
+      "kind": "uups"
     }
   ],
   "impls": {
@@ -2424,6 +2439,938 @@
           },
           "t_struct(Stake)6223_storage": {
             "label": "struct TreedefiCOTStakingUpgradeable.Stake",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "startBlock",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "endBlock",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "earnedRewards",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "38d90d4fafb1c4f2d2b9edc32b5a79f477badb68b7653ffce7d0a33fc1a16e2c": {
+      "address": "0x512F4274d3B3e79B00a5281b5b50226D4782Ce2f",
+      "txHash": "0xf336bc395da7f10c392fe2502d11f108de3f68e804d7cb857886b8aaa211e8e6",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:80"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_paused",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_bool",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:29"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:116"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC165Upgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol:41"
+          },
+          {
+            "label": "_roles",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)34_storage)",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:61"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "202",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:259"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "251",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:197"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "301",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:107"
+          },
+          {
+            "label": "cotToken",
+            "offset": 0,
+            "slot": "351",
+            "type": "t_contract(ERC20Upgradeable)1921",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:48"
+          },
+          {
+            "label": "whitelist",
+            "offset": 0,
+            "slot": "352",
+            "type": "t_contract(TreedefiWhitelist)7034",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:49"
+          },
+          {
+            "label": "blockStartDate",
+            "offset": 0,
+            "slot": "353",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:51"
+          },
+          {
+            "label": "poolSize",
+            "offset": 0,
+            "slot": "354",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:52"
+          },
+          {
+            "label": "rewardRate",
+            "offset": 0,
+            "slot": "355",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:53"
+          },
+          {
+            "label": "minStakingLockTime",
+            "offset": 0,
+            "slot": "356",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:54"
+          },
+          {
+            "label": "poolDuration",
+            "offset": 0,
+            "slot": "357",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:55"
+          },
+          {
+            "label": "maxStakePerUser",
+            "offset": 0,
+            "slot": "358",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:56"
+          },
+          {
+            "label": "poolRewardEndBlock",
+            "offset": 0,
+            "slot": "359",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:59"
+          },
+          {
+            "label": "_totalStaked",
+            "offset": 0,
+            "slot": "360",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:60"
+          },
+          {
+            "label": "_lastBlockReward",
+            "offset": 0,
+            "slot": "361",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:61"
+          },
+          {
+            "label": "isWhitelistEnabled",
+            "offset": 0,
+            "slot": "362",
+            "type": "t_bool",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:63"
+          },
+          {
+            "label": "_stakes",
+            "offset": 0,
+            "slot": "363",
+            "type": "t_mapping(t_address,t_struct(Stake)6238_storage)",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:74"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_contract(ERC20Upgradeable)1921": {
+            "label": "contract ERC20Upgradeable",
+            "numberOfBytes": "20"
+          },
+          "t_contract(TreedefiWhitelist)7034": {
+            "label": "contract TreedefiWhitelist",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(Stake)6238_storage)": {
+            "label": "mapping(address => struct TreedefiCOTStakingUpgradeable.Stake)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)34_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(RoleData)34_storage": {
+            "label": "struct AccessControlUpgradeable.RoleData",
+            "members": [
+              {
+                "label": "members",
+                "type": "t_mapping(t_address,t_bool)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "adminRole",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Stake)6238_storage": {
+            "label": "struct TreedefiCOTStakingUpgradeable.Stake",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "startBlock",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "endBlock",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "earnedRewards",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "8cd8bd84979e610641b2991a8f868f40c2a4c212634e852ac9427b3ac06951e4": {
+      "address": "0xaC869DA14b6fF5DB0262fC33AFD98e87d3d98304",
+      "txHash": "0xfb536f68d418f58fbab7e08e3ee948a861641ef9ca7003128111904229dc7365",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:80"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_paused",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_bool",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:29"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:116"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC165Upgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol:41"
+          },
+          {
+            "label": "_roles",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)34_storage)",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:61"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "202",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:259"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "251",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:197"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "301",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:107"
+          },
+          {
+            "label": "cotToken",
+            "offset": 0,
+            "slot": "351",
+            "type": "t_contract(ERC20Upgradeable)1921",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:48"
+          },
+          {
+            "label": "whitelist",
+            "offset": 0,
+            "slot": "352",
+            "type": "t_contract(TreedefiWhitelist)4546",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:49"
+          },
+          {
+            "label": "blockStartDate",
+            "offset": 0,
+            "slot": "353",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:51"
+          },
+          {
+            "label": "poolSize",
+            "offset": 0,
+            "slot": "354",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:52"
+          },
+          {
+            "label": "rewardRate",
+            "offset": 0,
+            "slot": "355",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:53"
+          },
+          {
+            "label": "minStakingLockTime",
+            "offset": 0,
+            "slot": "356",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:54"
+          },
+          {
+            "label": "poolDuration",
+            "offset": 0,
+            "slot": "357",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:55"
+          },
+          {
+            "label": "maxStakePerUser",
+            "offset": 0,
+            "slot": "358",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:56"
+          },
+          {
+            "label": "poolRewardEndBlock",
+            "offset": 0,
+            "slot": "359",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:59"
+          },
+          {
+            "label": "_totalStaked",
+            "offset": 0,
+            "slot": "360",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:60"
+          },
+          {
+            "label": "_lastBlockReward",
+            "offset": 0,
+            "slot": "361",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:61"
+          },
+          {
+            "label": "isWhitelistEnabled",
+            "offset": 0,
+            "slot": "362",
+            "type": "t_bool",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:63"
+          },
+          {
+            "label": "_stakes",
+            "offset": 0,
+            "slot": "363",
+            "type": "t_mapping(t_address,t_struct(Stake)3753_storage)",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:74"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_contract(ERC20Upgradeable)1921": {
+            "label": "contract ERC20Upgradeable",
+            "numberOfBytes": "20"
+          },
+          "t_contract(TreedefiWhitelist)4546": {
+            "label": "contract TreedefiWhitelist",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(Stake)3753_storage)": {
+            "label": "mapping(address => struct TreedefiCOTStakingUpgradeable.Stake)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)34_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(RoleData)34_storage": {
+            "label": "struct AccessControlUpgradeable.RoleData",
+            "members": [
+              {
+                "label": "members",
+                "type": "t_mapping(t_address,t_bool)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "adminRole",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Stake)3753_storage": {
+            "label": "struct TreedefiCOTStakingUpgradeable.Stake",
+            "members": [
+              {
+                "label": "amount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "startBlock",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "endBlock",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "earnedRewards",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "2f001c3742ec9a376903021a2bbdd1ec072d8575c76c94339a12ab792a1e754d": {
+      "address": "0x285dA183762Cf807B257b9B9F0bc3D79D9a43526",
+      "txHash": "0xc2c20c92bcccb939830555b61769ed4e2052ce1a7eb6aaf3d7ef75e62dee1d60",
+      "layout": {
+        "solcVersion": "0.8.18",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "_status",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:38"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "ReentrancyGuardUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol:80"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_paused",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_bool",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:29"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "PausableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol:116"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC165Upgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/introspection/ERC165Upgradeable.sol:41"
+          },
+          {
+            "label": "_roles",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_mapping(t_bytes32,t_struct(RoleData)34_storage)",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:61"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "202",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "AccessControlUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:259"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "251",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:197"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "301",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:107"
+          },
+          {
+            "label": "cotToken",
+            "offset": 0,
+            "slot": "351",
+            "type": "t_contract(ERC20Upgradeable)1921",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:49"
+          },
+          {
+            "label": "whitelist",
+            "offset": 0,
+            "slot": "352",
+            "type": "t_contract(TreedefiWhitelist)7158",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:50"
+          },
+          {
+            "label": "blockStartDate",
+            "offset": 0,
+            "slot": "353",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:52"
+          },
+          {
+            "label": "poolSize",
+            "offset": 0,
+            "slot": "354",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:53"
+          },
+          {
+            "label": "rewardRate",
+            "offset": 0,
+            "slot": "355",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:54"
+          },
+          {
+            "label": "minStakingLockTime",
+            "offset": 0,
+            "slot": "356",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:55"
+          },
+          {
+            "label": "poolDuration",
+            "offset": 0,
+            "slot": "357",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:56"
+          },
+          {
+            "label": "maxStakePerUser",
+            "offset": 0,
+            "slot": "358",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:57"
+          },
+          {
+            "label": "poolRewardEndBlock",
+            "offset": 0,
+            "slot": "359",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:60"
+          },
+          {
+            "label": "_totalStaked",
+            "offset": 0,
+            "slot": "360",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:61"
+          },
+          {
+            "label": "_lastBlockReward",
+            "offset": 0,
+            "slot": "361",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:62"
+          },
+          {
+            "label": "isWhitelistEnabled",
+            "offset": 0,
+            "slot": "362",
+            "type": "t_bool",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:64"
+          },
+          {
+            "label": "_stakes",
+            "offset": 0,
+            "slot": "363",
+            "type": "t_mapping(t_address,t_struct(Stake)5571_storage)",
+            "contract": "TreedefiCOTStakingUpgradeable",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeable.sol:67"
+          },
+          {
+            "label": "dummyVariable",
+            "offset": 0,
+            "slot": "364",
+            "type": "t_uint256",
+            "contract": "TreedefiCOTStakingUpgradeableV2",
+            "src": "contracts/dist/TreedefiCOTStakingUpgradeableV2.sol:10"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_contract(ERC20Upgradeable)1921": {
+            "label": "contract ERC20Upgradeable",
+            "numberOfBytes": "20"
+          },
+          "t_contract(TreedefiWhitelist)7158": {
+            "label": "contract TreedefiWhitelist",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(Stake)5571_storage)": {
+            "label": "mapping(address => struct ITreedefiCOTStakingUpgradeable.Stake)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)34_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(RoleData)34_storage": {
+            "label": "struct AccessControlUpgradeable.RoleData",
+            "members": [
+              {
+                "label": "members",
+                "type": "t_mapping(t_address,t_bool)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "adminRole",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Stake)5571_storage": {
+            "label": "struct ITreedefiCOTStakingUpgradeable.Stake",
             "members": [
               {
                 "label": "amount",
