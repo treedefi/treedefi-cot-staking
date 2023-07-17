@@ -44,23 +44,21 @@ contract TreedefiCOTStakingUpgradeable is
     // roles for access control
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
-    
 
+    // COT token address and whitelist contract address
     ERC20Upgradeable public cotToken;
     TreedefiWhitelist public whitelist;
     
+    // stake structure
     uint256 public blockStartDate; // start date of the pool
     uint256 public poolSize; // maximum COT allowed to be staked in the pool
     uint256 public rewardRate; // reward rate in percentage 
     uint256 public minStakingLockTime; // minimum locking time in blocks
     uint256 public poolDuration; // pool duration in blocks
     uint256 public maxStakePerUser; // maximum stake amount per user
-
-
     uint256 public poolRewardEndBlock; // end block of the pool
     uint256 internal _totalStaked; // total amount of COT staked in the pool
     uint256 internal _lastBlockReward; // last block number when rewards are calculated
-
     bool public isWhitelistEnabled; // flag to check if whitelist is enabled
 
     /// @dev Maps an address to its current stake
