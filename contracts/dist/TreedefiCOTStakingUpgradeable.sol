@@ -16,7 +16,7 @@ import {ITreedefiCOTStakingUpgradeable} from "./ITreedefiCOTStakingUpgradeable.s
 import {TreedefiWhitelist} from "./TreedefiWhitelist.sol";
 
 
-/** @title COT Staking contract
+/** @title COT Staking Upgradeable contract
  * @dev This contract uses a linear staking mechanism, 
  * @dev the amount of rewards earned by a user is proportional to the amount of tokens they have staked and the duration of their stake. 
  * @dev The contract calculates rewards using a formula that takes into account the stake amount, the reward rate, and the duration of the stake in blocks.
